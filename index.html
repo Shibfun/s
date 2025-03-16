@@ -244,7 +244,8 @@
                 3. When 10 bets are in, a random winner is picked.<br>
                 4. Winner gets 8 BONE, losers each get 10 BAME.<br>
                 5. 2 BONE goes to the game vault.<br>
-                6. New round starts automatically!
+                6. New round starts automatically!<br>
+                * Note: If you're the 10th bet, prepare 50% more Gas to settle the round.
             </div>
         </div>
         <div class="section">
@@ -320,6 +321,7 @@
                 const round = await contract.methods.currentRound().call();
                 document.getElementById('currentRound').innerText = round;
 
+                const betCount = await contract.methods.getCurrentBetCount().call();
                 const bets = await contract.methods.getCurrentBets().call();
                 let betsTable = '';
                 let userPosition = -1;
@@ -328,7 +330,7 @@
                     if (bet.bettor.toLowerCase() === accounts[0].toLowerCase()) userPosition = i;
                 });
                 document.getElementById('currentBets').innerHTML = betsTable;
-                document.getElementById('betPosition').innerText = userPosition >= 0 ? `You are #${userPosition}/10 in this round!` : 'You are not in this round yet!';
+                document.getElementById('betPosition').innerText = userPosition >= 0 ? `You are #${userPosition}` : 'You are not in this round yet!';
 
                 const hasBet = await contract.methods.hasBetInCurrentRound(accounts[0]).call();
                 const betButton = document.getElementById('betButton');
@@ -359,6 +361,10 @@
             const betButton = document.getElementById('betButton');
             try {
                 betButton.classList.add('loading');
+                const betCount = await contract.methods.getCurrentBetCount().call();
+                if (betCount === 9) {
+                    showModal('You are the 10th bet! Please increase Gas Limit by 50% to settle the round.');
+                }
                 await contract.methods.placeBet().send({from: accounts[0],value: web3.utils.toWei('1', 'ether')});
                 showModal('Bet placed! Good luck!');
                 updateUI();
