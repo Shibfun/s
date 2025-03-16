@@ -126,25 +126,6 @@
             opacity: 0.7;
             pointer-events: none;
         }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin: 10px 0;
-        }
-        input {
-            padding: 8px;
-            border: none;
-            border-radius: 10px;
-            background: #34495E;
-            color: #fff;
-            font-size: 0.9em;
-            text-align: center;
-        }
-        input:focus {
-            outline: none;
-            box-shadow: 0 0 3px #F4A261;
-        }
         .bets-table, .history-table {
             width: 100%;
             margin-top: 10px;
@@ -157,6 +138,17 @@
         }
         .bets-table td, .history-table td {
             padding: 5px;
+        }
+        .rules-text {
+            font-size: 0.9em;
+            color: #A8B5D4;
+            text-align: left;
+            line-height: 1.6;
+        }
+        .bet-position {
+            font-size: 0.9em;
+            color: #F4A261;
+            margin-top: 10px;
         }
         .modal {
             display: none;
@@ -200,8 +192,8 @@
         @media (max-width: 480px) {
             .header-content h1 { font-size: 1.3em; }
             button { padding: 6px 12px; font-size: 0.8em; }
-            input { font-size: 0.8em; }
             .bets-table, .history-table { font-size: 0.7em; }
+            .rules-text { font-size: 0.8em; }
         }
     </style>
 </head>
@@ -231,6 +223,7 @@
             <div class="button-group">
                 <button id="betButton">Bet 1 BONE</button>
             </div>
+            <div class="bet-position" id="betPosition">You are not in this round yet!</div>
             <table class="bets-table">
                 <thead>
                     <tr><th>#</th><th>Bettor</th></tr>
@@ -239,16 +232,18 @@
             </table>
         </div>
         <div class="section">
-            <div class="section-title">Burn BAME</div>
-            <div class="input-group">
-                <input type="text" id="burnAmount" placeholder="Amount to Burn">
-            </div>
-            <div class="button-group">
-                <button id="burnButton">Burn</button>
+            <div class="section-title">How to Play</div>
+            <div class="rules-text">
+                1. Each round has 10 players.<br>
+                2. Bet 1 BONE to join (1 bet per round).<br>
+                3. When 10 bets are in, a random winner is picked.<br>
+                4. Winner gets 8 BONE, losers each get 10 BAME.<br>
+                5. 2 BONE goes to the game creator.<br>
+                6. New round starts automatically!
             </div>
         </div>
         <div class="section">
-            <div class="section-title">Round History</div>
+            <div class="section-title">Round History (Last 10)</div>
             <table class="history-table">
                 <thead>
                     <tr><th>Round</th><th>Winner</th><th>#</th></tr>
@@ -268,52 +263,8 @@
     <script>
         let web3, accounts, contract;
         const contractAddress = "0x622c7213Dbbb2b13c208FFA1A19E3B3131C25e1B";
-        const contractABI = [
-            {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"bettor","type":"address"},{"indexed":false,"internalType":"uint256","name":"betNumber","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"BetPlaced","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"winner","type":"address"},{"indexed":false,"internalType":"uint256","name":"winningNumber","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"RoundCompleted","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"RoundStarted","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"burner","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"TokensBurned","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},
-            {"inputs":[],"name":"BET_AMOUNT","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"LOSER_REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"MAX_BETS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"OWNER_REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"WINNER_REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"burn","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"currentBets","outputs":[{"internalType":"address","name":"bettor","type":"address"},{"internalType":"uint256","name":"blockNumber","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"currentRound","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"getCurrentBetCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"getCurrentBets","outputs":[{"components":[{"internalType":"address","name":"bettor","type":"address"},{"internalType":"uint256","name":"blockNumber","type":"uint256"}],"internalType":"struct BoneGame.Bet[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"round","type":"uint256"}],"name":"getRoundInfo","outputs":[{"components":[{"internalType":"address","name":"winner","type":"address"},{"internalType":"uint256","name":"winningNumber","type":"uint256"},{"internalType":"uint256","name":"totalBets","type":"uint256"},{"internalType":"bool","name":"completed","type":"bool"}],"internalType":"struct BoneGame.RoundInfo","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"bettor","type":"address"}],"name":"hasBetInCurrentRound","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"hasBetThisRound","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"placeBet","outputs":[],"stateMutability":"payable","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"roundHistory","outputs":[{"internalType":"address","name":"winner","type":"address"},{"internalType":"uint256","name":"winningNumber","type":"uint256"},{"internalType":"uint256","name":"totalBets","type":"uint256"},{"internalType":"bool","name":"completed","type":"bool"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"withdrawExcessBONE","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"stateMutability":"payable","type":"receive"}
-        ];
-        const shibariumMainnet = {
-            chainId: 109,
-            chainName: 'Shibarium',
-            nativeCurrency: { name: 'BONE', symbol: 'BONE', decimals: 18 },
-            rpcUrls: ['https://www.shibrpc.com'],
-            blockExplorerUrls: ['https://shibariumscan.io']
-        };
+        const contractABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"bettor","type":"address"},{"indexed":false,"internalType":"uint256","name":"betNumber","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"BetPlaced","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"winner","type":"address"},{"indexed":false,"internalType":"uint256","name":"winningNumber","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"RoundCompleted","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"RoundStarted","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"burner","type":"address"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"TokensBurned","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[],"name":"BET_AMOUNT","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"LOSER_REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_BETS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"OWNER_REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"WINNER_REWARD","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"burn","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"currentBets","outputs":[{"internalType":"address","name":"bettor","type":"address"},{"internalType":"uint256","name":"blockNumber","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"currentRound","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"getCurrentBetCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCurrentBets","outputs":[{"components":[{"internalType":"address","name":"bettor","type":"address"},{"internalType":"uint256","name":"blockNumber","type":"uint256"}],"internalType":"struct BoneGame.Bet[]","name":"","type":"tuple[]"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"round","type":"uint256"}],"name":"getRoundInfo","outputs":[{"components":[{"internalType":"address","name":"winner","type":"address"},{"internalType":"uint256","name":"winningNumber","type":"uint256"},{"internalType":"uint256","name":"totalBets","type":"uint256"},{"internalType":"bool","name":"completed","type":"bool"}],"internalType":"struct BoneGame.RoundInfo","name":"","type":"tuple"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"bettor","type":"address"}],"name":"hasBetInCurrentRound","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"hasBetThisRound","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"placeBet","outputs":[],"stateMutability":"payable","type":"function"},{"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"roundHistory","outputs":[{"internalType":"address","name":"winner","type":"address"},{"internalType":"uint256","name":"winningNumber","type":"uint256"},{"internalType":"uint256","name":"totalBets","type":"uint256"},{"internalType":"bool","name":"completed","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"withdrawExcessBONE","outputs":[],"stateMutability":"nonpayable","type":"function"},{"stateMutability":"payable","type":"receive"}];
+        const shibariumMainnet = {chainId: 109,chainName: 'Shibarium',nativeCurrency: { name: 'BONE', symbol: 'BONE', decimals: 18 },rpcUrls: ['https://www.shibrpc.com'],blockExplorerUrls: ['https://shibariumscan.io']};
 
         function showModal(message) {
             document.getElementById('modalMessage').innerText = message;
@@ -337,16 +288,10 @@
                 const chainId = await web3.eth.getChainId();
                 if (chainId !== 109) {
                     try {
-                        await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: web3.utils.numberToHex(109) }]
-                        });
+                        await window.ethereum.request({method: 'wallet_switchEthereumChain',params: [{ chainId: web3.utils.numberToHex(109) }]});
                     } catch (switchError) {
                         if (switchError.code === 4902) {
-                            await window.ethereum.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [shibariumMainnet]
-                            });
+                            await window.ethereum.request({method: 'wallet_addEthereumChain',params: [shibariumMainnet]});
                         } else {
                             showModal('Please switch to Shibarium!');
                             return;
@@ -370,16 +315,19 @@
                 const round = await contract.methods.currentRound().call();
                 document.getElementById('currentRound').innerText = round;
 
-                const betCount = await contract.methods.getCurrentBetCount().call();
                 const bets = await contract.methods.getCurrentBets().call();
                 let betsTable = '';
+                let userPosition = -1;
                 bets.forEach((bet, i) => {
                     betsTable += `<tr><td>${i}</td><td>${bet.bettor.slice(0, 6)}...${bet.bettor.slice(-4)}</td></tr>`;
+                    if (bet.bettor.toLowerCase() === accounts[0].toLowerCase()) userPosition = i;
                 });
                 document.getElementById('currentBets').innerHTML = betsTable;
+                document.getElementById('betPosition').innerText = userPosition >= 0 ? `You are #${userPosition}/10 in this round!` : 'You are not in this round yet!';
 
                 let historyTable = '';
-                for (let i = 1; i < round; i++) {
+                const startRound = Math.max(1, round - 10);
+                for (let i = startRound; i < round; i++) {
                     const info = await contract.methods.getRoundInfo(i).call();
                     if (info.completed) {
                         historyTable += `<tr><td>${i}</td><td>${info.winner.slice(0, 6)}...${info.winner.slice(-4)}</td><td>${info.winningNumber}</td></tr>`;
@@ -402,10 +350,7 @@
             const betButton = document.getElementById('betButton');
             try {
                 betButton.classList.add('loading');
-                await contract.methods.placeBet().send({
-                    from: accounts[0],
-                    value: web3.utils.toWei('1', 'ether')
-                });
+                await contract.methods.placeBet().send({from: accounts[0],value: web3.utils.toWei('1', 'ether')});
                 showModal('Bet placed! Good luck!');
                 updateUI();
             } catch (error) {
@@ -415,32 +360,8 @@
             }
         }
 
-        async function burnBAME() {
-            if (!web3 || !contract || !accounts) {
-                showModal('Please connect your wallet!');
-                return;
-            }
-            const amount = document.getElementById('burnAmount').value;
-            if (!amount || isNaN(amount) || amount <= 0) {
-                showModal('Enter a valid amount to burn!');
-                return;
-            }
-            const burnButton = document.getElementById('burnButton');
-            try {
-                burnButton.classList.add('loading');
-                await contract.methods.burn(web3.utils.toWei(amount, 'ether')).send({ from: accounts[0] });
-                showModal(`Burned ${amount} BAME!`);
-                updateUI();
-            } catch (error) {
-                showModal(`Burn failed: ${error.message}`);
-            } finally {
-                burnButton.classList.remove('loading');
-            }
-        }
-
         document.getElementById('connectButton').addEventListener('click', connectWallet);
         document.getElementById('betButton').addEventListener('click', placeBet);
-        document.getElementById('burnButton').addEventListener('click', burnBAME);
 
         window.ethereum?.on('chainChanged', (chainId) => {
             if (parseInt(chainId, 16) !== 109) {
