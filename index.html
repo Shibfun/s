@@ -126,6 +126,11 @@
             opacity: 0.7;
             pointer-events: none;
         }
+        button:disabled {
+            background: #A8B5D4;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
         .bets-table, .history-table {
             width: 100%;
             margin-top: 10px;
@@ -324,6 +329,10 @@
                 });
                 document.getElementById('currentBets').innerHTML = betsTable;
                 document.getElementById('betPosition').innerText = userPosition >= 0 ? `You are #${userPosition}/10 in this round!` : 'You are not in this round yet!';
+
+                const hasBet = await contract.methods.hasBetInCurrentRound(accounts[0]).call();
+                const betButton = document.getElementById('betButton');
+                betButton.disabled = hasBet;
 
                 let historyTable = '';
                 const startRound = Math.max(1, round - 10);
