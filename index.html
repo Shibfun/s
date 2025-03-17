@@ -77,6 +77,8 @@
         <div class="header-content">
             <h1>BoneGame</h1>
             <div class="game-info">Current Round: <span id="currentRound">1</span></div>
+            <div class="game-info">Total Supply: <span id="totalSupply">0</span></div>
+            <div class="game-info">Available Supply: <span id="availableSupply">21000000</span></div>
         </div>
     </div>
     <div class="container">
@@ -91,7 +93,6 @@
             <div class="section-title">Place Your Bet</div>
             <div class="button-group">
                 <button id="betButton">Bet 1 BONE</button>
-                <button id="refreshButton">Refresh</button>
             </div>
             <div class="bet-position" id="betPosition">You are not in this round yet!</div>
             <table class="bets-table">
@@ -136,7 +137,7 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script>
         let web3, accounts, contract;
-        const contractAddress = "0x5f2E6fA8d2dd64e84Be738eB2192EFD5921a677c";
+        const contractAddress = "0x4E23329106fcAf4cA48D0dEFb66Dd055f9661067";
         const contractABI = [
             {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},
@@ -146,6 +147,9 @@
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"bettor","type":"address"},{"indexed":false,"internalType":"uint256","name":"position","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"BetPlaced","type":"event"},
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"winner","type":"address"},{"indexed":false,"internalType":"uint256","name":"random","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"RoundCompleted","type":"event"},
             {"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"betAmount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"winnerReward","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"ownerReward","type":"uint256"}],"name":"ParametersUpdated","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"winner","type":"address"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"SettlementFailed","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"random","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"RandomNumberGenerated","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"mass","type":"uint256"}],"name":"NewNFTMinted","type":"event"},
             {"inputs":[],"name":"MAX_MASS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"betAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
@@ -154,8 +158,8 @@
             {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"currentBettors","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"betCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"roundNumber","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},
+            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},
             {"inputs":[],"name":"placeBet","outputs":[],"stateMutability":"payable","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId1","type":"uint256"},{"internalType":"uint256","name":"tokenId2","type":"uint256"}],"name":"merge","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"massOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
@@ -173,6 +177,9 @@
             {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"_betAmount","type":"uint256"},{"internalType":"uint256","name":"_winnerReward","type":"uint256"},{"internalType":"uint256","name":"_ownerReward","type":"uint256"}],"name":"setParameters","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[],"name":"getCurrentRoundInfo","outputs":[{"internalType":"address[2]","name":"bettors","type":"address[2]"},{"internalType":"uint256","name":"count","type":"uint256"},{"internalType":"uint256","name":"round","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"getTotalMinted","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"getAvailableSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},
             {"stateMutability":"payable","type":"receive"}
         ];
@@ -228,6 +235,12 @@
                 const roundInfo = await contract.methods.getCurrentRoundInfo().call();
                 document.getElementById('currentRound').innerText = roundInfo.round;
 
+                const totalSupply = await contract.methods.totalSupply().call();
+                document.getElementById('totalSupply').innerText = totalSupply;
+
+                const availableSupply = await contract.methods.getAvailableSupply().call();
+                document.getElementById('availableSupply').innerText = availableSupply;
+
                 let betsTable = '';
                 let userPosition = -1;
                 for (let i = 0; i < roundInfo.bettors.length; i++) {
@@ -281,18 +294,38 @@
                     updateUI();
                 })
                 .on('error', console.error);
+            contract.events.Transfer({filter: {to: accounts[0]}})
+                .on('data', () => {
+                    showModal('You received a new NFT!');
+                    updateUI();
+                })
+                .on('error', console.error);
+            contract.events.MassUpdate()
+                .on('data', () => {
+                    showModal('NFTs merged successfully!');
+                    updateUI();
+                })
+                .on('error', console.error);
+            contract.events.NewNFTMinted({filter: {to: accounts[0]}})
+                .on('data', (event) => {
+                    showModal(`New NFT minted with ID ${event.returnValues.tokenId} and Mass ${event.returnValues.mass}!`);
+                    updateUI();
+                })
+                .on('error', console.error);
         }
 
         async function updateNFTs() {
             const nftTable = document.getElementById('nftList');
             nftTable.innerHTML = '';
-            const balance = await contract.methods.balanceOf(accounts[0]).call();
-            for (let i = 0; i < balance; i++) {
+            const totalMinted = await contract.methods.getTotalMinted().call();
+            for (let i = 1; i <= totalMinted; i++) {
                 try {
-                    const tokenId = await contract.methods.tokenOfOwnerByIndex(accounts[0], i).call();
-                    const mass = await contract.methods.massOf(tokenId).call();
-                    const uri = await contract.methods.tokenURI(tokenId).call();
-                    nftTable.innerHTML += `<tr><td>${tokenId}</td><td>${mass}</td><td><button onclick="viewNFT('${uri}')">View</button></td></tr>`;
+                    const owner = await contract.methods.ownerOf(i).call();
+                    if (owner.toLowerCase() === accounts[0].toLowerCase()) {
+                        const mass = await contract.methods.massOf(i).call();
+                        const uri = await contract.methods.tokenURI(i).call();
+                        nftTable.innerHTML += `<tr><td>${i}</td><td>${mass}</td><td><button onclick="viewNFT('${uri}')">View</button></td></tr>`;
+                    }
                 } catch (e) {
                     console.error(`Failed to fetch NFT ${i}:`, e);
                 }
@@ -313,9 +346,12 @@
             const betButton = document.getElementById('betButton');
             try {
                 betButton.classList.add('loading');
+                const balance = await web3.eth.getBalance(accounts[0]);
+                if (web3.utils.fromWei(balance, 'ether') < 1) {
+                    throw new Error('Insufficient balance: Need at least 1 BONE');
+                }
                 await contract.methods.placeBet().send({from: accounts[0], value: web3.utils.toWei('1', 'ether')});
                 showModal('Bet placed! Good luck!');
-                updateUI();
             } catch (error) {
                 showModal(`Bet failed: ${error.message}`);
             } finally {
@@ -323,13 +359,8 @@
             }
         }
 
-        function refreshUI() {
-            updateUI();
-        }
-
         document.getElementById('connectButton').addEventListener('click', connectWallet);
         document.getElementById('betButton').addEventListener('click', placeBet);
-        document.getElementById('refreshButton').addEventListener('click', refreshUI);
 
         window.ethereum?.on('chainChanged', (chainId) => {
             if (parseInt(chainId, 16) !== 109) {
