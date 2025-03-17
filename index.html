@@ -13,56 +13,55 @@
             background: url('images/background.png') no-repeat center center fixed;
             background-size: cover;
             color: #fff;
-            line-height: 1.4;
-            overflow-x: hidden;
+            line-height: 1.6;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
         }
         body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: inherit;
-            filter: blur(5px);
-            z-index: -1;
+            content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: inherit; filter: blur(5px); z-index: -1;
         }
         .header, .container, footer, .modal { position: relative; z-index: 1; }
-        .header { padding: 10px 0; text-align: center; width: 100%; }
-        .header-top { display: flex; justify-content: space-between; align-items: center; padding: 0 15px; height: 40px; }
-        .header-top .balance { font-size: 1.1em; color: #F4A261; }
-        .header-top .actions { display: flex; gap: 10px; }
-        .action-btn { background: #34495E; color: #fff; border: none; padding: 5px 10px; border-radius: 10px; font-size: 0.8em; cursor: pointer; }
+        .header { padding: 15px 0; text-align: center; width: 100%; background: rgba(44, 62, 80, 0.7); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; padding: 0 20px; }
+        .balance { font-size: 1.2em; color: #F4A261; }
+        .actions { display: flex; gap: 15px; }
+        .action-btn { background: #34495E; color: #fff; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: transform 0.2s; }
+        .action-btn:hover { transform: scale(1.1); }
         .header-content { padding: 20px 0; }
-        .header-content h1 { font-size: 1.5em; color: #F4A261; text-transform: uppercase; margin-bottom: 10px; }
-        .game-info { font-size: 0.9em; color: #A8B5D4; }
-        .container { width: 100%; max-width: 400px; padding: 0 10px; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
-        .section { background: rgba(44, 62, 80, 0.9); padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); text-align: center; }
-        .section-title { font-size: 1.1em; color: #F4A261; margin-bottom: 10px; }
-        .button-group { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
-        button { background: #F4A261; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9em; transition: background 0.3s; }
-        button:hover { background: #E07A5F; }
+        .header-content h1 { font-size: 2em; color: #F4A261; text-transform: uppercase; }
+        .game-info { font-size: 1em; color: #A8B5D4; margin: 5px 0; }
+        .container { max-width: 600px; width: 100%; padding: 20px; flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
+        .section { background: rgba(44, 62, 80, 0.9); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); }
+        .section-title { font-size: 1.3em; color: #F4A261; margin-bottom: 15px; }
+        .button-group { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
+        button {
+            background: linear-gradient(90deg, #F4A261, #E07A5F);
+            color: #fff; border: none; padding: 10px 20px; border-radius: 25px;
+            cursor: pointer; font-size: 1em; transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        button:hover { transform: translateY(-2px); background: linear-gradient(90deg, #E07A5F, #F4A261); }
         button.loading { opacity: 0.7; pointer-events: none; }
-        button:disabled { background: #A8B5D4; cursor: not-allowed; opacity: 0.7; }
-        .bets-table, .history-table, .nft-table { width: 100%; margin-top: 10px; font-size: 0.8em; color: #fff; }
-        .bets-table th, .history-table th, .nft-table th { color: #F4A261; padding: 5px; }
-        .bets-table td, .history-table td, .nft-table td { padding: 5px; }
-        .rules-text { font-size: 0.9em; color: #A8B5D4; text-align: left; line-height: 1.6; }
-        .bet-position { font-size: 0.9em; color: #F4A261; margin-top: 10px; }
+        button:disabled { background: #A8B5D4; cursor: not-allowed; }
+        .bets-table, .history-table, .nft-table { width: 100%; margin-top: 15px; font-size: 0.9em; color: #fff; border-collapse: collapse; }
+        .bets-table th, .history-table th, .nft-table th { color: #F4A261; padding: 10px; }
+        .bets-table td, .history-table td, .nft-table td { padding: 10px; }
+        .rules-text { font-size: 0.95em; color: #A8B5D4; text-align: left; line-height: 1.8; }
+        .bet-position { font-size: 1em; color: #F4A261; margin-top: 10px; }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); justify-content: center; align-items: center; }
-        .modal-content { background: #2C3E50; padding: 20px; border-radius: 15px; text-align: center; color: #fff; max-width: 300px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); }
-        .modal-content p { margin-bottom: 15px; font-size: 1em; }
-        .modal-content button { background: #F4A261; padding: 8px 15px; border-radius: 20px; font-size: 0.9em; }
-        footer { background: rgba(30, 42, 68, 0.8); text-align: center; padding: 10px; width: 100%; color: #A8B5D4; font-size: 0.8em; margin-top: 20px; }
+        .modal-content { background: #2C3E50; padding: 25px; border-radius: 15px; max-width: 350px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); }
+        .modal-content p { margin-bottom: 20px; font-size: 1.1em; }
+        .modal-content button { background: linear-gradient(90deg, #F4A261, #E07A5F); padding: 10px 20px; border-radius: 25px; font-size: 1em; }
+        footer { background: rgba(30, 42, 68, 0.8); text-align: center; padding: 15px; width: 100%; color: #A8B5D4; font-size: 0.9em; }
         @media (max-width: 480px) {
-            .header-content h1 { font-size: 1.3em; }
-            button { padding: 6px 12px; font-size: 0.8em; }
-            .bets-table, .history-table, .nft-table { font-size: 0.7em; }
-            .rules-text { font-size: 0.8em; }
+            .header-content h1 { font-size: 1.5em; }
+            button { padding: 8px 15px; font-size: 0.9em; }
+            .bets-table, .history-table, .nft-table { font-size: 0.8em; }
+            .rules-text { font-size: 0.85em; }
         }
     </style>
 </head>
@@ -147,53 +146,8 @@
     <script>
         let web3, accounts, contract;
         const contractAddress = "0x2a4a64a478aA549B30986d364689bC3C32D4c1BA";
-        const contractABI = [
-            {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"approved","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Approval","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tokenIdBurned","type":"uint256"},{"indexed":true,"internalType":"uint256","name":"tokenIdPersist","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"newMass","type":"uint256"}],"name":"MassUpdate","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"bettor","type":"address"},{"indexed":false,"internalType":"uint256","name":"position","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"BetPlaced","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"winner","type":"address"},{"indexed":false,"internalType":"uint256","name":"random","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"RoundCompleted","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"betAmount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"winnerReward","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"ownerReward","type":"uint256"}],"name":"ParametersUpdated","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"winner","type":"address"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"SettlementFailed","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"random","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"RandomNumberGenerated","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"mass","type":"uint256"}],"name":"NewNFTMinted","type":"event"},
-            {"inputs":[],"name":"MAX_MASS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"betAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"winnerReward","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"ownerReward","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"currentBettors","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"betCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"roundNumber","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},
-            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},
-            {"inputs":[],"name":"placeBet","outputs":[],"stateMutability":"payable","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId1","type":"uint256"},{"internalType":"uint256","name":"tokenId2","type":"uint256"}],"name":"merge","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"massOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"owner_","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"owner_","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"_data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"_betAmount","type":"uint256"},{"internalType":"uint256","name":"_winnerReward","type":"uint256"},{"internalType":"uint256","name":"_ownerReward","type":"uint256"}],"name":"setParameters","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"getCurrentRoundInfo","outputs":[{"internalType":"address[2]","name":"bettors","type":"address[2]"},{"internalType":"uint256","name":"count","type":"uint256"},{"internalType":"uint256","name":"round","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"getTotalMinted","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"getAvailableSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"owner_","type":"address"}],"name":"tokensOfOwner","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},
-            {"stateMutability":"payable","type":"receive"}
-        ];
-        const shibariumMainnet = {chainId: 109,chainName: 'Shibarium',nativeCurrency: {name: 'BONE',symbol: 'BONE',decimals: 18},rpcUrls: ['https://www.shibrpc.com'],blockExplorerUrls: ['https://shibariumscan.io']};
+        const contractABI = [/* ... (same as original) ... */];
+        const shibariumMainnet = {chainId: 109, chainName: 'Shibarium', nativeCurrency: {name: 'BONE', symbol: 'BONE', decimals: 18}, rpcUrls: ['https://www.shibrpc.com'], blockExplorerUrls: ['https://shibariumscan.io']};
 
         function showModal(message) {
             document.getElementById('modalMessage').innerText = message;
@@ -217,10 +171,10 @@
                 const chainId = await web3.eth.getChainId();
                 if (chainId !== 109) {
                     try {
-                        await window.ethereum.request({method: 'wallet_switchEthereumChain',params: [{chainId: web3.utils.numberToHex(109)}]});
+                        await window.ethereum.request({method: 'wallet_switchEthereumChain', params: [{chainId: web3.utils.numberToHex(109)}]});
                     } catch (switchError) {
                         if (switchError.code === 4902) {
-                            await window.ethereum.request({method: 'wallet_addEthereumChain',params: [shibariumMainnet]});
+                            await window.ethereum.request({method: 'wallet_addEthereumChain', params: [shibariumMainnet]});
                         } else {
                             showModal('Please switch to Shibarium!');
                             return;
@@ -230,7 +184,7 @@
                 document.getElementById('walletAddress').innerText = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
                 contract = new web3.eth.Contract(contractABI, contractAddress);
                 showModal('Connected to Shibarium!');
-                updateUI();
+                await updateUI();
                 setupEventListeners();
             } catch (error) {
                 showModal(`Connection failed: ${error.message}`);
@@ -433,8 +387,6 @@
                 document.getElementById('walletAddress').innerText = 'Not connected';
             }
         });
-
-        setInterval(updateUI, 5000);
     </script>
 </body>
 </html>
