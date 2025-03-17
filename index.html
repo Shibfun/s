@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BoneGame DApp</title>
-    <link rel="icon" type="image/png" href="images/bone.png">
+    <title>Serge NFT DApp</title>
+    <link rel="icon" type="image/png" href="images/serge.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Arial', sans-serif;
-            background: url('images/background.png') no-repeat center center fixed;
+            background: url('images/space-background.jpg') no-repeat center center fixed;
             background-size: cover;
             color: #fff;
             line-height: 1.4;
@@ -32,87 +32,48 @@
             z-index: -1;
         }
         .header, .container, footer, .modal { position: relative; z-index: 1; }
-        .header { padding: 10px 0; text-align: center; width: 100%; }
+        .header { padding: 10px 0; text-align: center; width: 100%; background: rgba(0, 0, 0, 0.5); }
         .header-top { display: flex; justify-content: space-between; align-items: center; padding: 0 15px; height: 40px; }
-        .header-top .balance { font-size: 1.1em; color: #F4A261; }
+        .header-top .balance { font-size: 1.1em; color: #FFD700; }
         .header-top .actions { display: flex; gap: 10px; }
-        .action-btn { background: #34495E; color: #fff; border: none; padding: 5px 10px; border-radius: 10px; font-size: 0.8em; cursor: pointer; }
+        .action-btn { background: #1E90FF; color: #fff; border: none; padding: 5px 10px; border-radius: 10px; font-size: 0.8em; cursor: pointer; transition: background 0.3s; }
+        .action-btn:hover { background: #4169E1; }
         .header-content { padding: 20px 0; }
-        .header-content h1 { font-size: 1.5em; color: #F4A261; text-transform: uppercase; margin-bottom: 10px; }
-        .game-info { font-size: 0.9em; color: #A8B5D4; }
-        .container { width: 100%; max-width: 400px; padding: 0 10px; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
-        .section { background: rgba(44, 62, 80, 0.9); padding: 15px; border-radius: 15px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); text-align: center; }
-        .section-title { font-size: 1.1em; color: #F4A261; margin-bottom: 10px; }
-        .button-group { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
-        button { background: #F4A261; color: #fff; border: none; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 0.9em; transition: background 0.3s; }
-        button:hover { background: #E07A5F; }
+        .header-content h1 { font-size: 1.8em; color: #FFD700; text-transform: uppercase; margin-bottom: 10px; }
+        .game-info { font-size: 0.9em; color: #B0C4DE; }
+        .container { width: 100%; max-width: 450px; padding: 0 10px; flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
+        .section { background: rgba(25, 25, 112, 0.9); padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); text-align: center; }
+        .section-title { font-size: 1.2em; color: #FFD700; margin-bottom: 15px; }
+        .button-group { display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
+        button { background: #FFD700; color: #191970; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; transition: background 0.3s, transform 0.1s; }
+        button:hover { background: #FFA500; transform: scale(1.05); }
         button.loading { opacity: 0.7; pointer-events: none; }
-        button:disabled { background: #A8B5D4; cursor: not-allowed; opacity: 0.7; }
-        .bets-table, .history-table, .nft-table { width: 100%; margin-top: 10px; font-size: 0.8em; color: #fff; }
-        .bets-table th, .history-table th, .nft-table th { color: #F4A261; padding: 5px; }
-        .bets-table td, .history-table td, .nft-table td { padding: 5px; }
-        .rules-text { font-size: 0.9em; color: #A8B5D4; text-align: left; line-height: 1.6; }
-        .bet-position { font-size: 0.9em; color: #F4A261; margin-top: 10px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); justify-content: center; align-items: center; }
-        .modal-content { background: #2C3E50; padding: 20px; border-radius: 15px; text-align: center; color: #fff; max-width: 300px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); }
-        .modal-content p { margin-bottom: 15px; font-size: 1em; }
-        .modal-content button { background: #F4A261; padding: 8px 15px; border-radius: 20px; font-size: 0.9em; }
-        footer { background: rgba(30, 42, 68, 0.8); text-align: center; padding: 10px; width: 100%; color: #A8B5D4; font-size: 0.8em; margin-top: 20px; }
+        button:disabled { background: #B0C4DE; cursor: not-allowed; opacity: 0.7; }
+        .nft-table { width: 100%; margin-top: 15px; font-size: 0.9em; color: #fff; border-collapse: collapse; }
+        .nft-table th { color: #FFD700; padding: 8px; border-bottom: 1px solid #FFD700; }
+        .nft-table td { padding: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .rules-text { font-size: 0.9em; color: #B0C4DE; text-align: left; line-height: 1.6; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center; }
+        .modal-content { background: #191970; padding: 25px; border-radius: 15px; text-align: center; color: #fff; max-width: 350px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); }
+        .modal-content p { margin-bottom: 20px; font-size: 1.1em; }
+        .modal-content button { background: #FFD700; color: #191970; padding: 10px 20px; border-radius: 25px; font-size: 1em; }
+        footer { background: rgba(25, 25, 112, 0.8); text-align: center; padding: 15px; width: 100%; color: #B0C4DE; font-size: 0.9em; margin-top: 30px; }
         #nftSelect1, #nftSelect2 {
-            background: linear-gradient(135deg, #F4A261 0%, #E07A5F 100%);
-            color: #fff;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 15px;
-            font-size: 0.9em;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: transform 0.1s ease, box-shadow 0.2s ease;
-            margin-right: 10px;
-            width: 120px;
-        }
-        #nftSelect1:hover, #nftSelect2:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        #nftSelect1 option, #nftSelect2 option {
-            background: #2C3E50;
-            color: #fff;
-        }
+            background: #FFD700; color: #191970; border: none; padding: 10px; border-radius: 15px; font-size: 0.9em; cursor: pointer; width: 130px; transition: transform 0.1s; }
+        #nftSelect1:hover, #nftSelect2:hover { transform: scale(1.05); }
+        #nftSelect1 option, #nftSelect2 option { background: #191970; color: #fff; }
         .nft-table a {
-            display: inline-block;
-            background: linear-gradient(135deg, #34495E 0%, #2C3E50 100%);
-            color: #fff;
-            padding: 6px 12px;
-            border-radius: 15px;
-            text-decoration: none;
-            font-size: 0.8em;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-            transition: transform 0.1s ease, box-shadow 0.2s ease;
+            background: #1E90FF; color: #fff; padding: 6px 12px; border-radius: 15px; text-decoration: none; font-size: 0.8em; transition: background 0.3s, transform 0.1s;
         }
-        .nft-table a:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        #refreshButton {
-            background: #F4A261;
-            color: #fff;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: background 0.3s;
-            margin-left: 10px;
-        }
-        #refreshButton:hover {
-            background: #E07A5F;
-        }
+        .nft-table a:hover { background: #4169E1; transform: scale(1.05); }
+        #refreshButton { background: #1E90FF; color: #fff; }
+        #refreshButton:hover { background: #4169E1; }
         @media (max-width: 480px) {
-            .header-content h1 { font-size: 1.3em; }
-            button { padding: 6px 12px; font-size: 0.8em; }
-            .bets-table, .history-table, .nft-table { font-size: 0.7em; }
+            .header-content h1 { font-size: 1.5em; }
+            button, #nftSelect1, #nftSelect2 { padding: 8px 15px; font-size: 0.9em; width: 110px; }
+            .nft-table { font-size: 0.8em; }
             .rules-text { font-size: 0.8em; }
+            .container { max-width: 100%; padding: 0 5px; }
         }
     </style>
 </head>
@@ -121,14 +82,14 @@
         <div class="header-top">
             <span class="balance" id="boneBalance">0 BONE</span>
             <div class="actions">
-                <button class="action-btn" onclick="window.open('https://x.com/woofswap', '_blank')"><i class="fab fa-twitter"></i></button>
+                <button class="action-btn" onclick="window.open('https://x.com/serge_nft', '_blank')"><i class="fab fa-twitter"></i></button>
             </div>
         </div>
         <div class="header-content">
-            <h1>BoneGame</h1>
-            <div class="game-info">Current Round: <span id="currentRound">1</span></div>
+            <h1>Serge NFT</h1>
+            <div class="game-info">Total Minted: <span id="totalMinted">0</span></div>
             <div class="game-info">Total Supply: <span id="totalSupply">0</span></div>
-            <div class="game-info">Available Supply: <span id="availableSupply">21000000</span></div>
+            <div class="game-info">Free Mints Left: <span id="freeMints">100000000</span></div>
         </div>
     </div>
     <div class="container">
@@ -140,38 +101,26 @@
             <div class="game-info">Wallet: <span id="walletAddress">Not connected</span></div>
         </div>
         <div class="section">
-            <div class="section-title">Place Your Bet</div>
+            <div class="section-title">Mint a Serge NFT</div>
             <div class="button-group">
-                <button id="betButton">Bet 1 BONE</button>
+                <button id="mintButton">Mint (Free)</button>
             </div>
-            <div class="bet-position" id="betPosition">You are not in this round yet!</div>
-            <table class="bets-table">
-                <thead><tr><th>#</th><th>Bettor</th></tr></thead>
-                <tbody id="currentBets"></tbody>
-            </table>
+            <div class="game-info">Mint a new Serge NFT with Mass 1</div>
         </div>
         <div class="section">
             <div class="section-title">How to Play</div>
             <div class="rules-text">
-                1. Each round has 2 players.<br>
-                2. Bet 1 BONE to join (1 bet per round).<br>
-                3. When 2 bets are in, a random winner is picked (0-4 for #0, 5-9 for #1).<br>
-                4. Winner gets 1.5 BONE, loser gets an NFT (Mass 1).<br>
-                5. 0.5 BONE goes to the game owner.<br>
-                6. New round starts automatically!<br>
-                7. Merge NFTs to increase Mass (max 10000).
+                1. Connect your wallet to Shibarium.<br>
+                2. Mint a free Serge NFT (up to 100,000,000 limit).<br>
+                3. Each NFT starts with Mass 1.<br>
+                4. Merge two NFTs to combine their Mass (max 100,000).<br>
+                5. The NFT's radius and color scale with its Mass.<br>
+                6. View your NFTs on Shibarium Scan!
             </div>
         </div>
         <div class="section">
-            <div class="section-title">Round History (Last 10)</div>
-            <table class="history-table">
-                <thead><tr><th>Round</th><th>Winner</th><th>#</th></tr></thead>
-                <tbody id="roundHistory"></tbody>
-            </table>
-        </div>
-        <div class="section">
-            <div class="section-title">Your NFTs</div>
-            <div id="nftSelection">
+            <div class="section-title">Your Serge NFTs</div>
+            <div class="button-group">
                 <select id="nftSelect1" onchange="updateMergeButton()">
                     <option value="-1">Select NFT 1</option>
                 </select>
@@ -197,33 +146,28 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script>
         let web3, accounts, contract;
-        const contractAddress = "0x2a4a64a478aA549B30986d364689bC3C32D4c1BA";
+        const contractAddress = "0x9FcEa3627746aEA84c8Eba612E1fD25aC27d605A";
         const contractABI = [
             {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"approved","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Approval","type":"event"},
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tokenIdBurned","type":"uint256"},{"indexed":true,"internalType":"uint256","name":"tokenIdPersist","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"newMass","type":"uint256"}],"name":"MassUpdate","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"bettor","type":"address"},{"indexed":false,"internalType":"uint256","name":"position","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"BetPlaced","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"winner","type":"address"},{"indexed":false,"internalType":"uint256","name":"random","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"RoundCompleted","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"betAmount","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"winnerReward","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"ownerReward","type":"uint256"}],"name":"ParametersUpdated","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":false,"internalType":"address","name":"winner","type":"address"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"SettlementFailed","type":"event"},
-            {"anonymous":false,"inputs":[{"indexed":false,"internalType":"uint256","name":"random","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"round","type":"uint256"}],"name":"RandomNumberGenerated","type":"event"},
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"mass","type":"uint256"}],"name":"NewNFTMinted","type":"event"},
             {"inputs":[],"name":"MAX_MASS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"betAmount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"winnerReward","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"ownerReward","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"","type":"uint256"}],"name":"currentBettors","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"betCount","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"roundNumber","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},
-            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},
-            {"inputs":[],"name":"placeBet","outputs":[],"stateMutability":"payable","type":"function"},
+            {"inputs":[],"name":"FREE_MINT_LIMIT","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"mint","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId1","type":"uint256"},{"internalType":"uint256","name":"tokenId2","type":"uint256"}],"name":"merge","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner_","type":"address"}],"name":"tokensOfOwner","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"massOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},
+            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"},
+            {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"getTotalMinted","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"getFreeMintsRemaining","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"address","name":"owner_","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},
@@ -233,14 +177,6 @@
             {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"_data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"withdraw","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"_betAmount","type":"uint256"},{"internalType":"uint256","name":"_winnerReward","type":"uint256"},{"internalType":"uint256","name":"_ownerReward","type":"uint256"}],"name":"setParameters","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"getCurrentRoundInfo","outputs":[{"internalType":"address[2]","name":"bettors","type":"address[2]"},{"internalType":"uint256","name":"count","type":"uint256"},{"internalType":"uint256","name":"round","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"getTotalMinted","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"getAvailableSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"owner_","type":"address"}],"name":"tokensOfOwner","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},
             {"stateMutability":"payable","type":"receive"}
         ];
@@ -293,46 +229,15 @@
         async function updateUI() {
             if (!web3 || !contract || !accounts) return;
             try {
-                const roundInfo = await contract.methods.getCurrentRoundInfo().call();
-                document.getElementById('currentRound').innerText = roundInfo.round;
+                const totalMinted = await contract.methods.getTotalMinted().call();
+                document.getElementById('totalMinted').innerText = totalMinted;
 
                 const totalSupply = await contract.methods.totalSupply().call();
                 document.getElementById('totalSupply').innerText = totalSupply;
 
-                const availableSupply = await contract.methods.getAvailableSupply().call();
-                document.getElementById('availableSupply').innerText = availableSupply;
-
-                let betsTable = '';
-                let userPosition = -1;
-                for (let i = 0; i < roundInfo.bettors.length; i++) {
-                    if (roundInfo.bettors[i] !== '0x0000000000000000000000000000000000000000') {
-                        betsTable += `<tr><td>${i}</td><td>${roundInfo.bettors[i].slice(0, 6)}...${roundInfo.bettors[i].slice(-4)}</td></tr>`;
-                        if (roundInfo.bettors[i].toLowerCase() === accounts[0].toLowerCase()) userPosition = i;
-                    }
-                }
-                document.getElementById('currentBets').innerHTML = betsTable;
-                document.getElementById('betPosition').innerText = userPosition >= 0 ? `You are #${userPosition}` : roundInfo.count >= 2 ? 'Round is full, waiting for settlement...' : 'You are not in this round yet!';
-
-                const betButton = document.getElementById('betButton');
-                betButton.disabled = userPosition >= 0;
-
-                let historyTable = '';
-                const pastRounds = await web3.eth.getPastLogs({
-                    address: contractAddress,
-                    topics: [web3.utils.sha3('RoundCompleted(address,uint256,uint256)')],
-                    fromBlock: 0,
-                    toBlock: 'latest'
-                });
-                pastRounds.sort((a, b) => web3.utils.hexToNumber(b.topics[3]) - web3.utils.hexToNumber(a.topics[3]));
-                for (let i = 0; i < Math.min(10, pastRounds.length); i++) {
-                    const decoded = web3.eth.abi.decodeLog([
-                        {type: 'address', name: 'winner', indexed: true},
-                        {type: 'uint256', name: 'random'},
-                        {type: 'uint256', name: 'round'}
-                    ], pastRounds[i].data, pastRounds[i].topics.slice(1));
-                    historyTable += `<tr><td>${decoded.round}</td><td>${decoded.winner.slice(0, 6)}...${decoded.winner.slice(-4)}</td><td>${decoded.random % 10}</td></tr>`;
-                }
-                document.getElementById('roundHistory').innerHTML = historyTable || '<tr><td colspan="3">No history yet</td></tr>';
+                const freeMints = await contract.methods.getFreeMintsRemaining().call();
+                document.getElementById('freeMints').innerText = freeMints;
+                document.getElementById('mintButton').disabled = freeMints == 0;
 
                 const balance = await web3.eth.getBalance(accounts[0]);
                 document.getElementById('boneBalance').innerText = `${web3.utils.fromWei(balance, 'ether').slice(0, 6)} BONE`;
@@ -340,45 +245,7 @@
                 await updateNFTs();
             } catch (error) {
                 console.error('UI update failed:', error);
-                document.getElementById('roundHistory').innerHTML = '<tr><td colspan="3">Error loading history</td></tr>';
             }
-        }
-
-        function setupEventListeners() {
-            contract.events.BetPlaced()
-                .on('data', () => {
-                    console.log('BetPlaced event detected, updating UI');
-                    updateUI();
-                })
-                .on('error', console.error);
-            contract.events.RoundCompleted()
-                .on('data', () => {
-                    showModal('Round settled! Starting new round.');
-                    console.log('RoundCompleted event detected, updating UI');
-                    updateUI();
-                })
-                .on('error', console.error);
-            contract.events.Transfer({filter: {to: accounts[0]}})
-                .on('data', () => {
-                    showModal('You received a new NFT!');
-                    console.log('Transfer event detected, updating UI');
-                    updateUI();
-                })
-                .on('error', console.error);
-            contract.events.MassUpdate()
-                .on('data', () => {
-                    showModal('NFTs merged successfully!');
-                    console.log('MassUpdate event detected, updating UI');
-                    updateUI();
-                })
-                .on('error', console.error);
-            contract.events.NewNFTMinted({filter: {to: accounts[0]}})
-                .on('data', (event) => {
-                    showModal(`New NFT minted with ID ${event.returnValues.tokenId} and Mass ${event.returnValues.mass}!`);
-                    console.log('NewNFTMinted event detected, updating UI');
-                    updateUI();
-                })
-                .on('error', console.error);
         }
 
         async function updateNFTs() {
@@ -398,8 +265,7 @@
                 const userNfts = [];
                 for (let tokenId of tokenIds) {
                     const mass = await contract.methods.massOf(tokenId).call();
-                    const uri = await contract.methods.tokenURI(tokenId).call();
-                    nftTable.innerHTML += `<tr><td>${tokenId}</td><td>${mass}</td><td><a href="https://www.shibariumscan.io/token/0x2a4a64a478aA549B30986d364689bC3C32D4c1BA/instance/${tokenId}" target="_blank">View</a></td></tr>`;
+                    nftTable.innerHTML += `<tr><td>${tokenId}</td><td>${mass}</td><td><a href="https://www.shibariumscan.io/token/${contractAddress}/instance/${tokenId}" target="_blank">View</a></td></tr>`;
                     userNfts.push({tokenId: tokenId, mass: mass});
                 }
                 userNfts.forEach(nft => {
@@ -409,6 +275,43 @@
             } catch (error) {
                 console.error('NFT update failed:', error);
                 nftTable.innerHTML = '<tr><td colspan="3">Error loading NFTs</td></tr>';
+            }
+        }
+
+        function setupEventListeners() {
+            contract.events.Transfer({filter: {to: accounts[0]}})
+                .on('data', () => {
+                    showModal('You received a new Serge NFT!');
+                    updateUI();
+                })
+                .on('error', console.error);
+            contract.events.MassUpdate()
+                .on('data', () => {
+                    showModal('NFTs merged successfully!');
+                    updateUI();
+                })
+                .on('error', console.error);
+            contract.events.NewNFTMinted({filter: {to: accounts[0]}})
+                .on('data', (event) => {
+                    showModal(`New NFT minted with ID ${event.returnValues.tokenId} and Mass ${event.returnValues.mass}!`);
+                    updateUI();
+                })
+                .on('error', console.error);
+        }
+
+        async function mintNFT() {
+            if (!web3 || !contract || !accounts) {
+                showModal('Please connect your wallet!');
+                return;
+            }
+            const mintButton = document.getElementById('mintButton');
+            try {
+                mintButton.classList.add('loading');
+                await contract.methods.mint().send({from: accounts[0], gas: 300000});
+            } catch (error) {
+                showModal(`Mint failed: ${error.message}`);
+            } finally {
+                mintButton.classList.remove('loading');
             }
         }
 
@@ -429,9 +332,7 @@
             }
             try {
                 mergeButton.classList.add('loading');
-                await contract.methods.merge(nftSelect1.value, nftSelect2.value).send({from: accounts[0], gas: 1853960});
-                showModal('NFTs merged successfully!');
-                updateUI();
+                await contract.methods.merge(nftSelect1.value, nftSelect2.value).send({from: accounts[0], gas: 500000});
             } catch (error) {
                 showModal(`Merge failed: ${error.message}`);
             } finally {
@@ -439,36 +340,8 @@
             }
         }
 
-        function viewNFT(uri) {
-            const json = atob(uri.split(',')[1]);
-            const metadata = JSON.parse(json);
-            window.open(metadata.image, '_blank');
-        }
-
-        async function placeBet() {
-            if (!web3 || !contract || !accounts) {
-                showModal('Please connect your wallet!');
-                return;
-            }
-            const betButton = document.getElementById('betButton');
-            try {
-                betButton.classList.add('loading');
-                const balance = await web3.eth.getBalance(accounts[0]);
-                if (web3.utils.fromWei(balance, 'ether') < 1) {
-                    throw new Error('Insufficient balance: Need at least 1 BONE');
-                }
-                await contract.methods.placeBet().send({from: accounts[0], value: web3.utils.toWei('1', 'ether'), gas: 1853960});
-                showModal('Bet placed! Good luck!');
-                updateUI();
-            } catch (error) {
-                showModal(`Bet failed: ${error.message}`);
-            } finally {
-                betButton.classList.remove('loading');
-            }
-        }
-
         document.getElementById('connectButton').addEventListener('click', connectWallet);
-        document.getElementById('betButton').addEventListener('click', placeBet);
+        document.getElementById('mintButton').addEventListener('click', mintNFT);
 
         window.ethereum?.on('chainChanged', (chainId) => {
             if (parseInt(chainId, 16) !== 109) {
