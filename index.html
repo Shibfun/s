@@ -121,6 +121,15 @@
         </div>
         <div class="section">
             <div class="section-title">Your NFTs</div>
+            <div id="nftSelection">
+                <select id="nftSelect1" onchange="updateMergeButton()">
+                    <option value="-1">Select NFT 1</option>
+                </select>
+                <select id="nftSelect2" onchange="updateMergeButton()">
+                    <option value="-1">Select NFT 2</option>
+                </select>
+                <button id="mergeButton" disabled onclick="mergeNFTs()">Merge</button>
+            </div>
             <table class="nft-table">
                 <thead><tr><th>ID</th><th>Mass</th><th>View</th></tr></thead>
                 <tbody id="nftList"></tbody>
@@ -137,7 +146,7 @@
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script>
         let web3, accounts, contract;
-        const contractAddress = "0x4E23329106fcAf4cA48D0dEFb66Dd055f9661067";
+        const contractAddress = "0x2a4a64a478aA549B30986d364689bC3C32D4c1BA";
         const contractABI = [
             {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
             {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},
@@ -180,6 +189,7 @@
             {"inputs":[],"name":"getTotalMinted","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"getAvailableSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner_","type":"address"}],"name":"tokensOfOwner","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},
             {"stateMutability":"payable","type":"receive"}
         ];
@@ -316,19 +326,53 @@
 
         async function updateNFTs() {
             const nftTable = document.getElementById('nftList');
+            const nftSelect1 = document.getElementById('nftSelect1');
+            const nftSelect2 = document.getElementById('nftSelect2');
             nftTable.innerHTML = '';
-            const totalMinted = await contract.methods.getTotalMinted().call();
-            for (let i = 1; i <= totalMinted; i++) {
+            nftSelect1.innerHTML = '<option value="-1">Select NFT 1</option>';
+            nftSelect2.innerHTML = '<option value="-1">Select NFT 2</option>';
+
+            const tokenIds = await contract.methods.tokensOfOwner(accounts[0]).call();
+            const userNfts = [];
+            for (let tokenId of tokenIds) {
                 try {
-                    const owner = await contract.methods.ownerOf(i).call();
-                    if (owner.toLowerCase() === accounts[0].toLowerCase()) {
-                        const mass = await contract.methods.massOf(i).call();
-                        const uri = await contract.methods.tokenURI(i).call();
-                        nftTable.innerHTML += `<tr><td>${i}</td><td>${mass}</td><td><button onclick="viewNFT('${uri}')">View</button></td></tr>`;
-                    }
+                    const mass = await contract.methods.massOf(tokenId).call();
+                    const uri = await contract.methods.tokenURI(tokenId).call();
+                    nftTable.innerHTML += `<tr><td>${tokenId}</td><td>${mass}</td><td><button onclick="viewNFT('${uri}')">View</button></td></tr>`;
+                    userNfts.push({tokenId: tokenId, mass: mass});
                 } catch (e) {
-                    console.error(`Failed to fetch NFT ${i}:`, e);
+                    console.error(`Failed to fetch NFT ${tokenId}:`, e);
                 }
+            }
+            userNfts.forEach(nft => {
+                nftSelect1.innerHTML += `<option value="${nft.tokenId}">${nft.tokenId} (Mass: ${nft.mass})</option>`;
+                nftSelect2.innerHTML += `<option value="${nft.tokenId}">${nft.tokenId} (Mass: ${nft.mass})</option>`;
+            });
+        }
+
+        function updateMergeButton() {
+            const nftSelect1 = document.getElementById('nftSelect1');
+            const nftSelect2 = document.getElementById('nftSelect2');
+            const mergeButton = document.getElementById('mergeButton');
+            mergeButton.disabled = nftSelect1.value === "-1" || nftSelect2.value === "-1" || nftSelect1.value === nftSelect2.value;
+        }
+
+        async function mergeNFTs() {
+            const nftSelect1 = document.getElementById('nftSelect1');
+            const nftSelect2 = document.getElementById('nftSelect2');
+            const mergeButton = document.getElementById('mergeButton');
+            if (nftSelect1.value === "-1" || nftSelect2.value === "-1" || nftSelect1.value === nftSelect2.value) {
+                showModal('Please select two different NFTs!');
+                return;
+            }
+            try {
+                mergeButton.classList.add('loading');
+                await contract.methods.merge(nftSelect1.value, nftSelect2.value).send({from: accounts[0], gas: 1853960});
+                showModal('NFTs merged successfully!');
+            } catch (error) {
+                showModal(`Merge failed: ${error.message}`);
+            } finally {
+                mergeButton.classList.remove('loading');
             }
         }
 
@@ -350,7 +394,7 @@
                 if (web3.utils.fromWei(balance, 'ether') < 1) {
                     throw new Error('Insufficient balance: Need at least 1 BONE');
                 }
-                await contract.methods.placeBet().send({from: accounts[0], value: web3.utils.toWei('1', 'ether')});
+                await contract.methods.placeBet().send({from: accounts[0], value: web3.utils.toWei('1', 'ether'), gas: 1853960});
                 showModal('Bet placed! Good luck!');
             } catch (error) {
                 showModal(`Bet failed: ${error.message}`);
