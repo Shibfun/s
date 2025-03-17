@@ -266,16 +266,13 @@
                 betButton.disabled = userPosition >= 0;
 
                 let historyTable = '';
-                const startRound = Math.max(1, parseInt(roundInfo.round) - 10);
                 const pastRounds = await web3.eth.getPastLogs({
                     address: contractAddress,
                     topics: [web3.utils.sha3('RoundCompleted(address,uint256,uint256)')],
                     fromBlock: 0,
                     toBlock: 'latest'
                 });
-                pastRounds.sort((a, b) => {
-                    return web3.utils.hexToNumber(b.topics[3]) - web3.utils.hexToNumber(a.topics[3]);
-                });
+                pastRounds.sort((a, b) => web3.utils.hexToNumber(b.topics[3]) - web3.utils.hexToNumber(a.topics[3]));
                 for (let i = 0; i < Math.min(10, pastRounds.length); i++) {
                     const decoded = web3.eth.abi.decodeLog([
                         {type: 'address', name: 'winner', indexed: true},
@@ -344,7 +341,7 @@
                 for (let tokenId of tokenIds) {
                     const mass = await contract.methods.massOf(tokenId).call();
                     const uri = await contract.methods.tokenURI(tokenId).call();
-                    nftTable.innerHTML += `<tr><td>${tokenId}</td><td>${mass}</td><td><button onclick="viewNFT('${uri}')">View</button></td></tr>`;
+                    nftTable.innerHTML += `<tr><td>${tokenId}</td><td>${mass}</td><td><a href="https://www.shibariumscan.io/token/0x2a4a64a478aA549B30986d364689bC3C32D4c1BA/instance/${tokenId}" target="_blank">View</a></td></tr>`;
                     userNfts.push({tokenId: tokenId, mass: mass});
                 }
                 userNfts.forEach(nft => {
@@ -437,7 +434,7 @@
             }
         });
 
-        setInterval(updateUI, 2000);
+        setInterval(updateUI, 5000);
     </script>
 </body>
 </html>
