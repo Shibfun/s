@@ -7,47 +7,80 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(180deg, #1e1e2f 0%, #2a2a3d 100%);
+            background: #1e1e2f;
             color: #ffffff;
             margin: 0;
-            padding: 10px;
+            padding: 20px;
             min-height: 100vh;
             display: flex;
             justify-content: center;
+            align-items: center;
         }
         .container {
             width: 100%;
             max-width: 600px;
-            margin: 0 auto;
             background: #2c2f48;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
             border-radius: 20px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
-        }
-        .sidebar {
-            padding: 15px;
-            background: #23263b;
-        }
-        .content-area {
-            flex: 1;
             padding: 15px;
         }
         .header {
             background: linear-gradient(90deg, #ff6f61 0%, #ff9f1c 100%);
             color: #fff;
-            padding: 12px 15px;
-            font-size: 1.3em;
+            padding: 12px;
+            font-size: 1.5em;
             font-weight: 600;
+            text-align: center;
             border-radius: 15px;
             margin-bottom: 15px;
-            text-align: center;
         }
-        .connect-section {
+        .status-bar {
+            background: #ff9100;
+            color: #fff;
+            padding: 10px;
+            font-size: 1em;
+            text-align: center;
+            border-radius: 10px;
             margin-bottom: 15px;
         }
-        .connect-section button {
+        .content {
+            flex: 1;
+            padding: 15px;
+        }
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .content-header .info {
+            font-size: 0.9em;
+            color: #a5b4fc;
+        }
+        .refresh-btn {
+            padding: 8px 16px;
+            background: #ff9100;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .refresh-btn:hover {
+            background: #e68a00;
+            transform: translateY(-2px);
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .action-buttons button {
+            flex: 1;
             padding: 10px;
             background: #ff9100;
             color: #fff;
@@ -56,72 +89,60 @@
             cursor: pointer;
             font-weight: bold;
             font-size: 1em;
-            width: 100%;
-            text-align: left;
-            transition: background 0.3s;
-        }
-        .connect-section button:hover {
-            background: #e68a00;
-        }
-        .connect-section button.loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-        .button-group {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .button-group button {
-            padding: 10px;
-            background: #ff9100;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9em;
             transition: background 0.3s, transform 0.2s;
         }
-        .button-group button:hover {
+        .action-buttons button:hover {
             background: #e68a00;
             transform: translateY(-2px);
         }
-        .content-header {
+        .info-section {
             padding: 10px;
             background: #373b5c;
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+            font-size: 0.9em;
+            color: #a5b4fc;
             margin-bottom: 15px;
         }
-        .content-header .info {
+        .info-section p {
+            margin: 5px 0;
+        }
+        .merge-section {
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
         }
-        .content-header .name {
-            font-weight: 600;
+        .merge-section select {
+            padding: 10px;
+            background: #373b5c;
             color: #fff;
-            background: #ff6f61;
-            padding: 6px 12px;
-            border-radius: 15px;
+            border: none;
+            border-radius: 10px;
             font-size: 0.9em;
+            cursor: pointer;
+            min-width: 150px;
         }
-        .content-header .refresh-btn {
-            padding: 6px 12px;
+        .merge-section select option {
+            background: #2c2f48;
+        }
+        .merge-section button {
+            padding: 10px 20px;
             background: #ff9100;
             color: #fff;
             border: none;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
-            transition: background 0.3s;
+            transition: background 0.3s, transform 0.2s;
         }
-        .content-header .refresh-btn:hover {
+        .merge-section button:hover {
             background: #e68a00;
+            transform: translateY(-2px);
+        }
+        .merge-section button:disabled {
+            background: #555;
+            cursor: not-allowed;
         }
         .nft-item {
             padding: 10px;
@@ -161,83 +182,23 @@
         .nft-item button:hover {
             background: #e68a00;
         }
-        .nft-item button:disabled {
-            background: #555;
-            cursor: not-allowed;
-        }
-        .info-section {
-            padding: 10px;
-            background: #373b5c;
-            border-radius: 10px;
-            font-size: 0.9em;
-            color: #a5b4fc;
-            margin-bottom: 15px;
-        }
-        .info-section p {
-            margin: 5px 0;
-        }
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 15px;
-            justify-content: center;
-        }
-        .action-buttons button {
-            padding: 10px 20px;
-            background: #ff9100;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.3s, transform 0.2s;
-        }
-        .action-buttons button:hover {
-            background: #e68a00;
-            transform: translateY(-2px);
-        }
-        .action-buttons button:disabled {
-            background: #555;
-            cursor: not-allowed;
-        }
         .status {
             margin-top: 10px;
             font-size: 0.9em;
             color: #ff9100;
             text-align: center;
         }
-        .merge-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 15px 0;
-            justify-content: center;
-        }
-        .merge-section select {
-            padding: 10px;
-            background: #373b5c;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            font-size: 0.9em;
-            cursor: pointer;
-            min-width: 150px;
-        }
-        .merge-section select option {
-            background: #2c2f48;
-        }
         @media (max-width: 400px) {
-            .button-group {
-                grid-template-columns: 1fr;
+            .action-buttons {
+                flex-direction: column;
+            }
+            .merge-section select {
+                min-width: 100%;
             }
             .nft-item {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 5px;
-            }
-            .merge-section select {
-                min-width: 100%;
             }
         }
     </style>
@@ -245,22 +206,12 @@
 </head>
 <body>
     <div class="container">
-        <div class="sidebar">
-            <div class="header">Serge NFT</div>
-            <div class="connect-section">
-                <button id="connectWalletButton">Connect Wallet</button>
-                <div id="networkStatus" class="status">Click to connect...</div>
-            </div>
-            <div class="button-group">
-                <button id="mintButton">Mint NFT</button>
-                <button id="myNFTsButton">My NFTs</button>
-            </div>
-        </div>
-        <div class="content-area">
+        <div class="header">Serge NFT</div>
+        <div class="status-bar" id="walletStatus">Click to connect...</div>
+        <div class="status-bar" id="networkStatus">Not connected</div>
+        <div class="content">
             <div class="content-header">
-                <div class="info">
-                    <div class="name" id="pageTitle">Welcome</div>
-                </div>
+                <div class="info" id="statsInfo"></div>
                 <button class="refresh-btn" id="refreshButton" onclick="refreshContent()">Refresh</button>
             </div>
             <div class="info-section" id="statsSection">
@@ -268,17 +219,18 @@
                 <p>Total Supply: <span id="totalSupply">0</span></p>
                 <p>Free Mints Left: <span id="freeMints">100000000</span></p>
             </div>
-            <div id="mintPage" class="content-area active">
+            <div id="mintSection">
                 <div class="info-section">
                     <p>Mint a free Serge NFT with Mass 1.</p>
                     <p>Merge two NFTs to combine their Mass (max 100,000).</p>
                 </div>
                 <div class="action-buttons">
-                    <button onclick="mintNFT()">Mint Now</button>
+                    <button onclick="mintNFT()">Mint NFT</button>
+                    <button onclick="switchPage('myNFTs')">My NFTs</button>
                 </div>
                 <div class="status" id="mintStatus"></div>
             </div>
-            <div id="myNFTsPage" class="content-area">
+            <div id="myNFTsSection" style="display: none;">
                 <div class="merge-section">
                     <select id="nftSelect1" onchange="updateMergeButton()">
                         <option value="-1">Select NFT 1</option>
@@ -342,12 +294,11 @@
         let currentPage = 'mint';
 
         async function connectWallet() {
-            const status = document.getElementById('networkStatus');
-            const connectButton = document.getElementById('connectWalletButton');
+            const walletStatus = document.getElementById('walletStatus');
+            const networkStatus = document.getElementById('networkStatus');
             try {
                 if (!window.ethereum) throw new Error("No wallet detected");
-                connectButton.classList.add('loading');
-                status.innerText = "Connecting...";
+                walletStatus.innerText = "Connecting...";
                 web3 = new Web3(window.ethereum);
                 accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 if (!accounts.length) throw new Error("Unlock wallet");
@@ -360,24 +311,22 @@
                         else throw switchError;
                     }
                 }
-                connectButton.textContent = `Connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+                walletStatus.innerText = `Connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+                networkStatus.innerText = "Connected to Shibarium";
                 contract = new web3.eth.Contract(contractABI, contractAddress);
-                status.innerText = "Connected to Shibarium";
                 updateStats();
                 setupEventListeners();
                 if (currentPage === 'myNFTs') loadMyNFTs();
             } catch (error) {
-                status.innerText = "Failed: " + error.message;
-            } finally {
-                connectButton.classList.remove('loading');
+                walletStatus.innerText = "Failed: " + error.message;
+                networkStatus.innerText = "Not connected";
             }
         }
 
         function switchPage(page) {
-            document.querySelectorAll('.content-area').forEach(p => p.classList.remove('active'));
-            document.getElementById(page + 'Page').classList.add('active');
             currentPage = page;
-            document.getElementById('pageTitle').innerText = page === 'mint' ? 'Mint NFT' : 'My NFTs';
+            document.getElementById('mintSection').style.display = page === 'mint' ? 'block' : 'none';
+            document.getElementById('myNFTsSection').style.display = page === 'myNFTs' ? 'block' : 'none';
             if (page === 'myNFTs') loadMyNFTs();
             else updateStats();
         }
@@ -391,6 +340,7 @@
                 document.getElementById('totalSupply').innerText = totalSupply;
                 const freeMints = await contract.methods.getFreeMintsRemaining().call();
                 document.getElementById('freeMints').innerText = freeMints;
+                document.getElementById('statsInfo').innerText = `Balance: ${web3.utils.fromWei(await web3.eth.getBalance(accounts[0]), 'ether').slice(0, 6)} BONE`;
             } catch (error) {
                 document.getElementById('mintStatus').innerText = "Failed to load stats: " + error.message;
             }
@@ -486,8 +436,10 @@
             const refreshButton = document.getElementById('refreshButton');
             refreshButton.disabled = true;
             try {
-                if (currentPage === 'mint') updateStats();
-                else if (currentPage === 'myNFTs') loadMyNFTs();
+                updateStats();
+                if (currentPage === 'myNFTs') loadMyNFTs();
+            } catch (error) {
+                document.getElementById(currentPage === 'myNFTs' ? 'mergeStatus' : 'mintStatus').innerText = "Failed to refresh: " + error.message;
             } finally {
                 refreshButton.disabled = false;
             }
@@ -510,9 +462,9 @@
             });
         }
 
-        document.getElementById('connectWalletButton').addEventListener('click', connectWallet);
-        document.getElementById('mintButton').addEventListener('click', () => switchPage('mint'));
-        document.getElementById('myNFTsButton').addEventListener('click', () => switchPage('myNFTs'));
+        document.getElementById('walletStatus').addEventListener('click', connectWallet);
+        document.getElementById('mintSection').querySelector('button').addEventListener('click', () => switchPage('mint'));
+        document.getElementById('myNFTsSection').querySelector('button:nth-child(2)').addEventListener('click', () => switchPage('myNFTs'));
 
         window.ethereum?.on('chainChanged', (chainId) => {
             if (parseInt(chainId, 16) !== 109) {
@@ -520,7 +472,7 @@
                 web3 = null;
                 contract = null;
                 accounts = null;
-                document.getElementById('connectWalletButton').textContent = 'Connect Wallet';
+                document.getElementById('walletStatus').innerText = "Click to connect...";
             } else {
                 connectWallet();
             }
@@ -530,11 +482,11 @@
             if (newAccounts.length) {
                 connectWallet();
             } else {
-                document.getElementById('networkStatus').innerText = "Wallet disconnected. Reconnect.";
+                document.getElementById('networkStatus').innerText = "Not connected";
                 web3 = null;
                 contract = null;
                 accounts = null;
-                document.getElementById('connectWalletButton').textContent = 'Connect Wallet';
+                document.getElementById('walletStatus').innerText = "Click to connect...";
             }
         });
     </script>
