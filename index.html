@@ -267,23 +267,24 @@
 
                 let historyTable = '';
                 const startRound = Math.max(1, parseInt(roundInfo.round) - 10);
-                for (let i = startRound; i < roundInfo.round; i++) {
-                    const pastRound = await web3.eth.getPastLogs({
-                        address: contractAddress,
-                        topics: [web3.utils.sha3('RoundCompleted(address,uint256,uint256)'), null, null, web3.utils.numberToHex(i)],
-                        fromBlock: 0,
-                        toBlock: 'latest'
-                    });
-                    if (pastRound.length) {
-                        const decoded = web3.eth.abi.decodeLog([
-                            {type: 'address', name: 'winner', indexed: true},
-                            {type: 'uint256', name: 'random'},
-                            {type: 'uint256', name: 'round'}
-                        ], pastRound[0].data, pastRound[0].topics.slice(1));
-                        historyTable += `<tr><td>${i}</td><td>${decoded.winner.slice(0, 6)}...${decoded.winner.slice(-4)}</td><td>${decoded.random % 10}</td></tr>`;
-                    }
+                const pastRounds = await web3.eth.getPastLogs({
+                    address: contractAddress,
+                    topics: [web3.utils.sha3('RoundCompleted(address,uint256,uint256)')],
+                    fromBlock: 0,
+                    toBlock: 'latest'
+                });
+                pastRounds.sort((a, b) => {
+                    return web3.utils.hexToNumber(b.topics[3]) - web3.utils.hexToNumber(a.topics[3]);
+                });
+                for (let i = 0; i < Math.min(10, pastRounds.length); i++) {
+                    const decoded = web3.eth.abi.decodeLog([
+                        {type: 'address', name: 'winner', indexed: true},
+                        {type: 'uint256', name: 'random'},
+                        {type: 'uint256', name: 'round'}
+                    ], pastRounds[i].data, pastRounds[i].topics.slice(1));
+                    historyTable += `<tr><td>${decoded.round}</td><td>${decoded.winner.slice(0, 6)}...${decoded.winner.slice(-4)}</td><td>${decoded.random % 10}</td></tr>`;
                 }
-                document.getElementById('roundHistory').innerHTML = historyTable;
+                document.getElementById('roundHistory').innerHTML = historyTable || '<tr><td colspan="3">No history yet</td></tr>';
 
                 const balance = await web3.eth.getBalance(accounts[0]);
                 document.getElementById('boneBalance').innerText = `${web3.utils.fromWei(balance, 'ether').slice(0, 6)} BONE`;
@@ -291,6 +292,7 @@
                 await updateNFTs();
             } catch (error) {
                 console.error('UI update failed:', error);
+                document.getElementById('roundHistory').innerHTML = '<tr><td colspan="3">Error loading history</td></tr>';
             }
         }
 
@@ -332,22 +334,27 @@
             nftSelect1.innerHTML = '<option value="-1">Select NFT 1</option>';
             nftSelect2.innerHTML = '<option value="-1">Select NFT 2</option>';
 
-            const tokenIds = await contract.methods.tokensOfOwner(accounts[0]).call();
-            const userNfts = [];
-            for (let tokenId of tokenIds) {
-                try {
+            try {
+                const tokenIds = await contract.methods.tokensOfOwner(accounts[0]).call();
+                if (tokenIds.length === 0) {
+                    nftTable.innerHTML = '<tr><td colspan="3">No NFTs owned</td></tr>';
+                    return;
+                }
+                const userNfts = [];
+                for (let tokenId of tokenIds) {
                     const mass = await contract.methods.massOf(tokenId).call();
                     const uri = await contract.methods.tokenURI(tokenId).call();
                     nftTable.innerHTML += `<tr><td>${tokenId}</td><td>${mass}</td><td><button onclick="viewNFT('${uri}')">View</button></td></tr>`;
                     userNfts.push({tokenId: tokenId, mass: mass});
-                } catch (e) {
-                    console.error(`Failed to fetch NFT ${tokenId}:`, e);
                 }
+                userNfts.forEach(nft => {
+                    nftSelect1.innerHTML += `<option value="${nft.tokenId}">${nft.tokenId} (Mass: ${nft.mass})</option>`;
+                    nftSelect2.innerHTML += `<option value="${nft.tokenId}">${nft.tokenId} (Mass: ${nft.mass})</option>`;
+                });
+            } catch (error) {
+                console.error('NFT update failed:', error);
+                nftTable.innerHTML = '<tr><td colspan="3">Error loading NFTs</td></tr>';
             }
-            userNfts.forEach(nft => {
-                nftSelect1.innerHTML += `<option value="${nft.tokenId}">${nft.tokenId} (Mass: ${nft.mass})</option>`;
-                nftSelect2.innerHTML += `<option value="${nft.tokenId}">${nft.tokenId} (Mass: ${nft.mass})</option>`;
-            });
         }
 
         function updateMergeButton() {
