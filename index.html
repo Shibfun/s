@@ -91,6 +91,7 @@
             <div class="section-title">Place Your Bet</div>
             <div class="button-group">
                 <button id="betButton">Bet 1 BONE</button>
+                <button id="refreshButton">Refresh</button>
             </div>
             <div class="bet-position" id="betPosition">You are not in this round yet!</div>
             <table class="bets-table">
@@ -213,6 +214,7 @@
                 contract = new web3.eth.Contract(contractABI, contractAddress);
                 showModal('Connected to Shibarium!');
                 updateUI();
+                setupEventListeners();
             } catch (error) {
                 showModal(`Connection failed: ${error.message}`);
             } finally {
@@ -235,7 +237,7 @@
                     }
                 }
                 document.getElementById('currentBets').innerHTML = betsTable;
-                document.getElementById('betPosition').innerText = userPosition >= 0 ? `You are #${userPosition}` : 'You are not in this round yet!';
+                document.getElementById('betPosition').innerText = userPosition >= 0 ? `You are #${userPosition}` : roundInfo.count >= 2 ? 'Round is full, waiting for settlement...' : 'You are not in this round yet!';
 
                 const betButton = document.getElementById('betButton');
                 betButton.disabled = userPosition >= 0;
@@ -269,16 +271,30 @@
             }
         }
 
+        function setupEventListeners() {
+            contract.events.BetPlaced()
+                .on('data', () => updateUI())
+                .on('error', console.error);
+            contract.events.RoundCompleted()
+                .on('data', () => {
+                    showModal('Round settled! Starting new round.');
+                    updateUI();
+                })
+                .on('error', console.error);
+        }
+
         async function updateNFTs() {
             const nftTable = document.getElementById('nftList');
             nftTable.innerHTML = '';
             const balance = await contract.methods.balanceOf(accounts[0]).call();
             for (let i = 0; i < balance; i++) {
-                const tokenId = await contract.methods.tokenOfOwnerByIndex(accounts[0], i).call().catch(() => null);
-                if (tokenId) {
+                try {
+                    const tokenId = await contract.methods.tokenOfOwnerByIndex(accounts[0], i).call();
                     const mass = await contract.methods.massOf(tokenId).call();
                     const uri = await contract.methods.tokenURI(tokenId).call();
                     nftTable.innerHTML += `<tr><td>${tokenId}</td><td>${mass}</td><td><button onclick="viewNFT('${uri}')">View</button></td></tr>`;
+                } catch (e) {
+                    console.error(`Failed to fetch NFT ${i}:`, e);
                 }
             }
         }
@@ -307,8 +323,13 @@
             }
         }
 
+        function refreshUI() {
+            updateUI();
+        }
+
         document.getElementById('connectButton').addEventListener('click', connectWallet);
         document.getElementById('betButton').addEventListener('click', placeBet);
+        document.getElementById('refreshButton').addEventListener('click', refreshUI);
 
         window.ethereum?.on('chainChanged', (chainId) => {
             if (parseInt(chainId, 16) !== 109) {
@@ -334,7 +355,7 @@
             }
         });
 
-        setInterval(updateUI, 5000);
+        setInterval(updateUI, 2000);
     </script>
 </body>
 </html>
