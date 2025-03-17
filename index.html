@@ -69,6 +69,7 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
             transition: transform 0.1s ease, box-shadow 0.2s ease;
             margin-right: 10px;
+            width: 120px;
         }
         #nftSelect1:hover, #nftSelect2:hover {
             transform: scale(1.05);
@@ -77,6 +78,35 @@
         #nftSelect1 option, #nftSelect2 option {
             background: #2C3E50;
             color: #fff;
+        }
+        .nft-table a {
+            display: inline-block;
+            background: linear-gradient(135deg, #34495E 0%, #2C3E50 100%);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 15px;
+            text-decoration: none;
+            font-size: 0.8em;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: transform 0.1s ease, box-shadow 0.2s ease;
+        }
+        .nft-table a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        #refreshButton {
+            background: #F4A261;
+            color: #fff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s;
+            margin-left: 10px;
+        }
+        #refreshButton:hover {
+            background: #E07A5F;
         }
         @media (max-width: 480px) {
             .header-content h1 { font-size: 1.3em; }
@@ -149,6 +179,7 @@
                     <option value="-1">Select NFT 2</option>
                 </select>
                 <button id="mergeButton" disabled onclick="mergeNFTs()">Merge</button>
+                <button id="refreshButton" onclick="updateUI()">Refresh</button>
             </div>
             <table class="nft-table">
                 <thead><tr><th>ID</th><th>Mass</th><th>View</th></tr></thead>
