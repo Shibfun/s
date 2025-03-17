@@ -23,8 +23,6 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
             border-radius: 20px;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
             padding: 15px;
         }
         .header {
@@ -46,21 +44,23 @@
             border-radius: 10px;
             margin-bottom: 15px;
         }
-        .content {
-            flex: 1;
-            padding: 15px;
-        }
         .content-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
         .content-header .info {
             font-size: 0.9em;
             color: #a5b4fc;
         }
-        .refresh-btn {
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .refresh-btn, .mint-btn {
             padding: 8px 16px;
             background: #ff9100;
             color: #fff;
@@ -70,28 +70,7 @@
             font-weight: 600;
             transition: background 0.3s, transform 0.2s;
         }
-        .refresh-btn:hover {
-            background: #e68a00;
-            transform: translateY(-2px);
-        }
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .action-buttons button {
-            flex: 1;
-            padding: 10px;
-            background: #ff9100;
-            color: #fff;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 1em;
-            transition: background 0.3s, transform 0.2s;
-        }
-        .action-buttons button:hover {
+        .refresh-btn:hover, .mint-btn:hover {
             background: #e68a00;
             transform: translateY(-2px);
         }
@@ -189,8 +168,12 @@
             text-align: center;
         }
         @media (max-width: 400px) {
-            .action-buttons {
+            .header-buttons {
                 flex-direction: column;
+                width: 100%;
+            }
+            .refresh-btn, .mint-btn {
+                width: 100%;
             }
             .merge-section select {
                 min-width: 100%;
@@ -208,41 +191,34 @@
     <div class="container">
         <div class="header">Serge NFT</div>
         <div class="status-bar" id="walletStatus">Click to connect...</div>
-        <div class="status-bar" id="networkStatus">Not connected</div>
         <div class="content">
             <div class="content-header">
                 <div class="info" id="statsInfo"></div>
-                <button class="refresh-btn" id="refreshButton" onclick="refreshContent()">Refresh</button>
+                <div class="header-buttons">
+                    <button class="mint-btn" id="mintButton" onclick="mintNFT()">Mint NFT</button>
+                    <button class="refresh-btn" id="refreshButton" onclick="refreshContent()">Refresh</button>
+                </div>
             </div>
             <div class="info-section" id="statsSection">
                 <p>Total Minted: <span id="totalMinted">0</span></p>
                 <p>Total Supply: <span id="totalSupply">0</span></p>
                 <p>Free Mints Left: <span id="freeMints">100000000</span></p>
             </div>
-            <div id="mintSection">
-                <div class="info-section">
-                    <p>Mint a free Serge NFT with Mass 1.</p>
-                    <p>Merge two NFTs to combine their Mass (max 100,000).</p>
-                </div>
-                <div class="action-buttons">
-                    <button onclick="mintNFT()">Mint NFT</button>
-                    <button onclick="switchPage('myNFTs')">My NFTs</button>
-                </div>
-                <div class="status" id="mintStatus"></div>
+            <div class="info-section">
+                <p>Mint a free Serge NFT with Mass 1.</p>
+                <p>Merge two NFTs to combine their Mass (max 100,000).</p>
             </div>
-            <div id="myNFTsSection" style="display: none;">
-                <div class="merge-section">
-                    <select id="nftSelect1" onchange="updateMergeButton()">
-                        <option value="-1">Select NFT 1</option>
-                    </select>
-                    <select id="nftSelect2" onchange="updateMergeButton()">
-                        <option value="-1">Select NFT 2</option>
-                    </select>
-                    <button id="mergeButton" onclick="mergeNFTs()" disabled>Merge</button>
-                </div>
-                <div id="nftList"></div>
-                <div class="status" id="mergeStatus"></div>
+            <div class="merge-section">
+                <select id="nftSelect1" onchange="updateMergeButton()">
+                    <option value="-1">Select NFT 1</option>
+                </select>
+                <select id="nftSelect2" onchange="updateMergeButton()">
+                    <option value="-1">Select NFT 2</option>
+                </select>
+                <button id="mergeButton" onclick="mergeNFTs()" disabled>Merge</button>
             </div>
+            <div id="nftList"></div>
+            <div class="status" id="status"></div>
         </div>
     </div>
 
@@ -291,11 +267,8 @@
             blockExplorerUrls: ['https://shibariumscan.io']
         };
 
-        let currentPage = 'mint';
-
         async function connectWallet() {
             const walletStatus = document.getElementById('walletStatus');
-            const networkStatus = document.getElementById('networkStatus');
             try {
                 if (!window.ethereum) throw new Error("No wallet detected");
                 walletStatus.innerText = "Connecting...";
@@ -312,23 +285,13 @@
                     }
                 }
                 walletStatus.innerText = `Connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
-                networkStatus.innerText = "Connected to Shibarium";
                 contract = new web3.eth.Contract(contractABI, contractAddress);
                 updateStats();
+                loadMyNFTs();
                 setupEventListeners();
-                if (currentPage === 'myNFTs') loadMyNFTs();
             } catch (error) {
                 walletStatus.innerText = "Failed: " + error.message;
-                networkStatus.innerText = "Not connected";
             }
-        }
-
-        function switchPage(page) {
-            currentPage = page;
-            document.getElementById('mintSection').style.display = page === 'mint' ? 'block' : 'none';
-            document.getElementById('myNFTsSection').style.display = page === 'myNFTs' ? 'block' : 'none';
-            if (page === 'myNFTs') loadMyNFTs();
-            else updateStats();
         }
 
         async function updateStats() {
@@ -342,23 +305,24 @@
                 document.getElementById('freeMints').innerText = freeMints;
                 document.getElementById('statsInfo').innerText = `Balance: ${web3.utils.fromWei(await web3.eth.getBalance(accounts[0]), 'ether').slice(0, 6)} BONE`;
             } catch (error) {
-                document.getElementById('mintStatus').innerText = "Failed to load stats: " + error.message;
+                document.getElementById('status').innerText = "Failed to load stats: " + error.message;
             }
         }
 
         async function mintNFT() {
             if (!contract || !accounts) {
-                document.getElementById('mintStatus').innerText = "Connect wallet first!";
+                document.getElementById('status').innerText = "Connect wallet first!";
                 return;
             }
-            const mintStatus = document.getElementById('mintStatus');
+            const status = document.getElementById('status');
             try {
-                mintStatus.innerText = "Minting...";
+                status.innerText = "Minting...";
                 await contract.methods.mint().send({ from: accounts[0], gas: 300000 });
-                mintStatus.innerText = "NFT minted successfully!";
+                status.innerText = "NFT minted successfully!";
                 updateStats();
+                loadMyNFTs();
             } catch (error) {
-                mintStatus.innerText = "Failed: " + error.message;
+                status.innerText = "Failed: " + error.message;
             }
         }
 
@@ -411,24 +375,24 @@
 
         async function mergeNFTs() {
             if (!contract || !accounts) {
-                document.getElementById('mergeStatus').innerText = "Connect wallet first!";
+                document.getElementById('status').innerText = "Connect wallet first!";
                 return;
             }
             const nftSelect1 = document.getElementById('nftSelect1');
             const nftSelect2 = document.getElementById('nftSelect2');
-            const mergeStatus = document.getElementById('mergeStatus');
+            const status = document.getElementById('status');
             if (nftSelect1.value === "-1" || nftSelect2.value === "-1" || nftSelect1.value === nftSelect2.value) {
-                mergeStatus.innerText = "Select two different NFTs!";
+                status.innerText = "Select two different NFTs!";
                 return;
             }
             try {
-                mergeStatus.innerText = "Merging...";
+                status.innerText = "Merging...";
                 await contract.methods.merge(nftSelect1.value, nftSelect2.value).send({ from: accounts[0], gas: 500000 });
-                mergeStatus.innerText = "NFTs merged successfully!";
+                status.innerText = "NFTs merged successfully!";
                 loadMyNFTs();
                 updateStats();
             } catch (error) {
-                mergeStatus.innerText = "Failed: " + error.message;
+                status.innerText = "Failed: " + error.message;
             }
         }
 
@@ -437,9 +401,9 @@
             refreshButton.disabled = true;
             try {
                 updateStats();
-                if (currentPage === 'myNFTs') loadMyNFTs();
+                loadMyNFTs();
             } catch (error) {
-                document.getElementById(currentPage === 'myNFTs' ? 'mergeStatus' : 'mintStatus').innerText = "Failed to refresh: " + error.message;
+                document.getElementById('status').innerText = "Failed to refresh: " + error.message;
             } finally {
                 refreshButton.disabled = false;
             }
@@ -448,31 +412,28 @@
         function setupEventListeners() {
             if (!contract) return;
             contract.events.NewNFTMinted({ filter: { to: accounts[0] } }, () => {
-                document.getElementById('mintStatus').innerText = "New NFT minted!";
+                document.getElementById('status').innerText = "New NFT minted!";
                 updateStats();
-                if (currentPage === 'myNFTs') loadMyNFTs();
+                loadMyNFTs();
             });
             contract.events.MassUpdate({}, () => {
-                document.getElementById('mergeStatus').innerText = "NFTs merged!";
+                document.getElementById('status').innerText = "NFTs merged!";
                 updateStats();
-                if (currentPage === 'myNFTs') loadMyNFTs();
+                loadMyNFTs();
             });
             contract.events.Transfer({ filter: { to: accounts[0] } }, () => {
-                if (currentPage === 'myNFTs') loadMyNFTs();
+                loadMyNFTs();
             });
         }
 
         document.getElementById('walletStatus').addEventListener('click', connectWallet);
-        document.getElementById('mintSection').querySelector('button').addEventListener('click', () => switchPage('mint'));
-        document.getElementById('myNFTsSection').querySelector('button:nth-child(2)').addEventListener('click', () => switchPage('myNFTs'));
 
         window.ethereum?.on('chainChanged', (chainId) => {
             if (parseInt(chainId, 16) !== 109) {
-                document.getElementById('networkStatus').innerText = "Wrong network. Reconnect to Shibarium.";
+                document.getElementById('walletStatus').innerText = "Wrong network. Reconnect to Shibarium.";
                 web3 = null;
                 contract = null;
                 accounts = null;
-                document.getElementById('walletStatus').innerText = "Click to connect...";
             } else {
                 connectWallet();
             }
@@ -482,7 +443,6 @@
             if (newAccounts.length) {
                 connectWallet();
             } else {
-                document.getElementById('networkStatus').innerText = "Not connected";
                 web3 = null;
                 contract = null;
                 accounts = null;
