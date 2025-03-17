@@ -3,146 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Serge NFT DApp</title>
-    <link rel="icon" type="image/png" href="images/serge.png">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Serge NFT - Mint & Merge</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Arial', sans-serif;
-            background: url('images/space-background.jpg') no-repeat center center fixed;
-            background-size: cover;
-            color: #fff;
-            line-height: 1.4;
-            overflow-x: hidden;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #1e1e2f 0%, #2a2a3d 100%);
+            color: #ffffff;
+            margin: 0;
+            padding: 10px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background: #2c2f48;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
         }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
+        .sidebar {
+            padding: 15px;
+            background: #23263b;
+        }
+        .content-area {
+            flex: 1;
+            padding: 15px;
+        }
+        .header {
+            background: linear-gradient(90deg, #ff6f61 0%, #ff9f1c 100%);
+            color: #fff;
+            padding: 12px 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .connect-section {
+            margin-bottom: 15px;
+        }
+        .connect-section button {
+            padding: 10px;
+            background: #ff9100;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1em;
             width: 100%;
-            height: 100%;
-            background: inherit;
-            filter: blur(5px);
-            z-index: -1;
+            text-align: left;
+            transition: background 0.3s;
         }
-        .header, .container, footer, .modal { position: relative; z-index: 1; }
-        .header { padding: 10px 0; text-align: center; width: 100%; background: rgba(0, 0, 0, 0.5); }
-        .header-top { display: flex; justify-content: space-between; align-items: center; padding: 0 15px; height: 40px; }
-        .header-top .balance { font-size: 1.1em; color: #FFD700; }
-        .header-top .actions { display: flex; gap: 10px; }
-        .action-btn { background: #1E90FF; color: #fff; border: none; padding: 5px 10px; border-radius: 10px; font-size: 0.8em; cursor: pointer; transition: background 0.3s; }
-        .action-btn:hover { background: #4169E1; }
-        .header-content { padding: 20px 0; }
-        .header-content h1 { font-size: 1.8em; color: #FFD700; text-transform: uppercase; margin-bottom: 10px; }
-        .game-info { font-size: 0.9em; color: #B0C4DE; }
-        .container { width: 100%; max-width: 450px; padding: 0 10px; flex-grow: 1; display: flex; flex-direction: column; gap: 20px; }
-        .section { background: rgba(25, 25, 112, 0.9); padding: 20px; border-radius: 15px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); text-align: center; }
-        .section-title { font-size: 1.2em; color: #FFD700; margin-bottom: 15px; }
-        .button-group { display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
-        button { background: #FFD700; color: #191970; border: none; padding: 10px 20px; border-radius: 25px; cursor: pointer; font-size: 1em; font-weight: bold; transition: background 0.3s, transform 0.1s; }
-        button:hover { background: #FFA500; transform: scale(1.05); }
-        button.loading { opacity: 0.7; pointer-events: none; }
-        button:disabled { background: #B0C4DE; cursor: not-allowed; opacity: 0.7; }
-        .nft-table { width: 100%; margin-top: 15px; font-size: 0.9em; color: #fff; border-collapse: collapse; }
-        .nft-table th { color: #FFD700; padding: 8px; border-bottom: 1px solid #FFD700; }
-        .nft-table td { padding: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .rules-text { font-size: 0.9em; color: #B0C4DE; text-align: left; line-height: 1.6; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center; }
-        .modal-content { background: #191970; padding: 25px; border-radius: 15px; text-align: center; color: #fff; max-width: 350px; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); }
-        .modal-content p { margin-bottom: 20px; font-size: 1.1em; }
-        .modal-content button { background: #FFD700; color: #191970; padding: 10px 20px; border-radius: 25px; font-size: 1em; }
-        footer { background: rgba(25, 25, 112, 0.8); text-align: center; padding: 15px; width: 100%; color: #B0C4DE; font-size: 0.9em; margin-top: 30px; }
-        #nftSelect1, #nftSelect2 {
-            background: #FFD700; color: #191970; border: none; padding: 10px; border-radius: 15px; font-size: 0.9em; cursor: pointer; width: 130px; transition: transform 0.1s; }
-        #nftSelect1:hover, #nftSelect2:hover { transform: scale(1.05); }
-        #nftSelect1 option, #nftSelect2 option { background: #191970; color: #fff; }
-        .nft-table a {
-            background: #1E90FF; color: #fff; padding: 6px 12px; border-radius: 15px; text-decoration: none; font-size: 0.8em; transition: background 0.3s, transform 0.1s;
+        .connect-section button:hover {
+            background: #e68a00;
         }
-        .nft-table a:hover { background: #4169E1; transform: scale(1.05); }
-        #refreshButton { background: #1E90FF; color: #fff; }
-        #refreshButton:hover { background: #4169E1; }
-        @media (max-width: 480px) {
-            .header-content h1 { font-size: 1.5em; }
-            button, #nftSelect1, #nftSelect2 { padding: 8px 15px; font-size: 0.9em; width: 110px; }
-            .nft-table { font-size: 0.8em; }
-            .rules-text { font-size: 0.8em; }
-            .container { max-width: 100%; padding: 0 5px; }
+        .connect-section button.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        .button-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .button-group button {
+            padding: 10px;
+            background: #ff9100;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.9em;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .button-group button:hover {
+            background: #e68a00;
+            transform: translateY(-2px);
+        }
+        .content-header {
+            padding: 10px;
+            background: #373b5c;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .content-header .info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .content-header .name {
+            font-weight: 600;
+            color: #fff;
+            background: #ff6f61;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+        .content-header .refresh-btn {
+            padding: 6px 12px;
+            background: #ff9100;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .content-header .refresh-btn:hover {
+            background: #e68a00;
+        }
+        .nft-item {
+            padding: 10px;
+            background: #2c2f48;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nft-item:hover {
+            background: #373b5c;
+        }
+        .nft-item .nft-id {
+            font-weight: 600;
+            font-size: 1em;
+        }
+        .nft-item .mass {
+            font-size: 0.8em;
+            color: #a5b4fc;
+        }
+        .nft-item .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .nft-item button {
+            padding: 5px 10px;
+            background: #ff9100;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .nft-item button:hover {
+            background: #e68a00;
+        }
+        .nft-item button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .info-section {
+            padding: 10px;
+            background: #373b5c;
+            border-radius: 10px;
+            font-size: 0.9em;
+            color: #a5b4fc;
+            margin-bottom: 15px;
+        }
+        .info-section p {
+            margin: 5px 0;
+        }
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        .action-buttons button {
+            padding: 10px 20px;
+            background: #ff9100;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .action-buttons button:hover {
+            background: #e68a00;
+            transform: translateY(-2px);
+        }
+        .action-buttons button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #ff9100;
+            text-align: center;
+        }
+        .merge-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 15px 0;
+            justify-content: center;
+        }
+        .merge-section select {
+            padding: 10px;
+            background: #373b5c;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9em;
+            cursor: pointer;
+            min-width: 150px;
+        }
+        .merge-section select option {
+            background: #2c2f48;
+        }
+        @media (max-width: 400px) {
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+            .nft-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+            .merge-section select {
+                min-width: 100%;
+            }
         }
     </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="header">
-        <div class="header-top">
-            <span class="balance" id="boneBalance">0 BONE</span>
-            <div class="actions">
-                <button class="action-btn" onclick="window.open('https://x.com/serge_nft', '_blank')"><i class="fab fa-twitter"></i></button>
-            </div>
-        </div>
-        <div class="header-content">
-            <h1>Serge NFT</h1>
-            <div class="game-info">Total Minted: <span id="totalMinted">0</span></div>
-            <div class="game-info">Total Supply: <span id="totalSupply">0</span></div>
-            <div class="game-info">Free Mints Left: <span id="freeMints">100000000</span></div>
-        </div>
-    </div>
     <div class="container">
-        <div class="section">
-            <div class="section-title">Connect Wallet</div>
-            <div class="button-group">
-                <button id="connectButton">Connect MetaMask</button>
+        <div class="sidebar">
+            <div class="header">Serge NFT</div>
+            <div class="connect-section">
+                <button id="connectWalletButton">Connect Wallet</button>
+                <div id="networkStatus" class="status">Click to connect...</div>
             </div>
-            <div class="game-info">Wallet: <span id="walletAddress">Not connected</span></div>
-        </div>
-        <div class="section">
-            <div class="section-title">Mint a Serge NFT</div>
             <div class="button-group">
-                <button id="mintButton">Mint (Free)</button>
-            </div>
-            <div class="game-info">Mint a new Serge NFT with Mass 1</div>
-        </div>
-        <div class="section">
-            <div class="section-title">How to Play</div>
-            <div class="rules-text">
-                1. Connect your wallet to Shibarium.<br>
-                2. Mint a free Serge NFT (up to 100,000,000 limit).<br>
-                3. Each NFT starts with Mass 1.<br>
-                4. Merge two NFTs to combine their Mass (max 100,000).<br>
-                5. The NFT's radius and color scale with its Mass.<br>
-                6. View your NFTs on Shibarium Scan!
+                <button id="mintButton">Mint NFT</button>
+                <button id="myNFTsButton">My NFTs</button>
             </div>
         </div>
-        <div class="section">
-            <div class="section-title">Your Serge NFTs</div>
-            <div class="button-group">
-                <select id="nftSelect1" onchange="updateMergeButton()">
-                    <option value="-1">Select NFT 1</option>
-                </select>
-                <select id="nftSelect2" onchange="updateMergeButton()">
-                    <option value="-1">Select NFT 2</option>
-                </select>
-                <button id="mergeButton" disabled onclick="mergeNFTs()">Merge</button>
-                <button id="refreshButton" onclick="updateUI()">Refresh</button>
+        <div class="content-area">
+            <div class="content-header">
+                <div class="info">
+                    <div class="name" id="pageTitle">Welcome</div>
+                </div>
+                <button class="refresh-btn" id="refreshButton" onclick="refreshContent()">Refresh</button>
             </div>
-            <table class="nft-table">
-                <thead><tr><th>ID</th><th>Mass</th><th>View</th></tr></thead>
-                <tbody id="nftList"></tbody>
-            </table>
+            <div class="info-section" id="statsSection">
+                <p>Total Minted: <span id="totalMinted">0</span></p>
+                <p>Total Supply: <span id="totalSupply">0</span></p>
+                <p>Free Mints Left: <span id="freeMints">100000000</span></p>
+            </div>
+            <div id="mintPage" class="content-area active">
+                <div class="info-section">
+                    <p>Mint a free Serge NFT with Mass 1.</p>
+                    <p>Merge two NFTs to combine their Mass (max 100,000).</p>
+                </div>
+                <div class="action-buttons">
+                    <button onclick="mintNFT()">Mint Now</button>
+                </div>
+                <div class="status" id="mintStatus"></div>
+            </div>
+            <div id="myNFTsPage" class="content-area">
+                <div class="merge-section">
+                    <select id="nftSelect1" onchange="updateMergeButton()">
+                        <option value="-1">Select NFT 1</option>
+                    </select>
+                    <select id="nftSelect2" onchange="updateMergeButton()">
+                        <option value="-1">Select NFT 2</option>
+                    </select>
+                    <button id="mergeButton" onclick="mergeNFTs()" disabled>Merge</button>
+                </div>
+                <div id="nftList"></div>
+                <div class="status" id="mergeStatus"></div>
+            </div>
         </div>
     </div>
-    <footer>Powered by Shibarium © 2025</footer>
-    <div id="modal" class="modal">
-        <div class="modal-content">
-            <p id="modalMessage"></p>
-            <button onclick="closeModal()">OK</button>
-        </div>
-    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script>
         let web3, accounts, contract;
@@ -180,139 +331,125 @@
             {"inputs":[{"internalType":"bytes4","name":"interfaceId","type":"bytes4"}],"name":"supportsInterface","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"pure","type":"function"},
             {"stateMutability":"payable","type":"receive"}
         ];
-        const shibariumMainnet = {chainId: 109,chainName: 'Shibarium',nativeCurrency: {name: 'BONE',symbol: 'BONE',decimals: 18},rpcUrls: ['https://www.shibrpc.com'],blockExplorerUrls: ['https://shibariumscan.io']};
+        const shibarium = {
+            chainId: 109,
+            chainName: 'Shibarium',
+            nativeCurrency: { name: 'BONE', symbol: 'BONE', decimals: 18 },
+            rpcUrls: ['https://rpc.shibrpc.com'],
+            blockExplorerUrls: ['https://shibariumscan.io']
+        };
 
-        function showModal(message) {
-            document.getElementById('modalMessage').innerText = message;
-            document.getElementById('modal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('modal').style.display = 'none';
-        }
+        let currentPage = 'mint';
 
         async function connectWallet() {
-            const connectButton = document.getElementById('connectButton');
+            const status = document.getElementById('networkStatus');
+            const connectButton = document.getElementById('connectWalletButton');
             try {
-                if (!window.ethereum) {
-                    showModal('Please install MetaMask!');
-                    return;
-                }
+                if (!window.ethereum) throw new Error("No wallet detected");
                 connectButton.classList.add('loading');
+                status.innerText = "Connecting...";
                 web3 = new Web3(window.ethereum);
-                accounts = await window.ethereum.request({method: 'eth_requestAccounts'});
+                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                if (!accounts.length) throw new Error("Unlock wallet");
                 const chainId = await web3.eth.getChainId();
                 if (chainId !== 109) {
                     try {
-                        await window.ethereum.request({method: 'wallet_switchEthereumChain',params: [{chainId: web3.utils.numberToHex(109)}]});
+                        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: "0x6d" }] });
                     } catch (switchError) {
-                        if (switchError.code === 4902) {
-                            await window.ethereum.request({method: 'wallet_addEthereumChain',params: [shibariumMainnet]});
-                        } else {
-                            showModal('Please switch to Shibarium!');
-                            return;
-                        }
+                        if (switchError.code === 4902) await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [shibarium] });
+                        else throw switchError;
                     }
                 }
-                document.getElementById('walletAddress').innerText = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+                connectButton.textContent = `Connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
                 contract = new web3.eth.Contract(contractABI, contractAddress);
-                showModal('Connected to Shibarium!');
-                updateUI();
+                status.innerText = "Connected to Shibarium";
+                updateStats();
                 setupEventListeners();
+                if (currentPage === 'myNFTs') loadMyNFTs();
             } catch (error) {
-                showModal(`Connection failed: ${error.message}`);
+                status.innerText = "Failed: " + error.message;
             } finally {
                 connectButton.classList.remove('loading');
             }
         }
 
-        async function updateUI() {
-            if (!web3 || !contract || !accounts) return;
+        function switchPage(page) {
+            document.querySelectorAll('.content-area').forEach(p => p.classList.remove('active'));
+            document.getElementById(page + 'Page').classList.add('active');
+            currentPage = page;
+            document.getElementById('pageTitle').innerText = page === 'mint' ? 'Mint NFT' : 'My NFTs';
+            if (page === 'myNFTs') loadMyNFTs();
+            else updateStats();
+        }
+
+        async function updateStats() {
+            if (!contract) return;
             try {
                 const totalMinted = await contract.methods.getTotalMinted().call();
                 document.getElementById('totalMinted').innerText = totalMinted;
-
                 const totalSupply = await contract.methods.totalSupply().call();
                 document.getElementById('totalSupply').innerText = totalSupply;
-
                 const freeMints = await contract.methods.getFreeMintsRemaining().call();
                 document.getElementById('freeMints').innerText = freeMints;
-                document.getElementById('mintButton').disabled = freeMints == 0;
-
-                const balance = await web3.eth.getBalance(accounts[0]);
-                document.getElementById('boneBalance').innerText = `${web3.utils.fromWei(balance, 'ether').slice(0, 6)} BONE`;
-
-                await updateNFTs();
             } catch (error) {
-                console.error('UI update failed:', error);
+                document.getElementById('mintStatus').innerText = "Failed to load stats: " + error.message;
             }
-        }
-
-        async function updateNFTs() {
-            const nftTable = document.getElementById('nftList');
-            const nftSelect1 = document.getElementById('nftSelect1');
-            const nftSelect2 = document.getElementById('nftSelect2');
-            nftTable.innerHTML = '';
-            nftSelect1.innerHTML = '<option value="-1">Select NFT 1</option>';
-            nftSelect2.innerHTML = '<option value="-1">Select NFT 2</option>';
-
-            try {
-                const tokenIds = await contract.methods.tokensOfOwner(accounts[0]).call();
-                if (tokenIds.length === 0) {
-                    nftTable.innerHTML = '<tr><td colspan="3">No NFTs owned</td></tr>';
-                    return;
-                }
-                const userNfts = [];
-                for (let tokenId of tokenIds) {
-                    const mass = await contract.methods.massOf(tokenId).call();
-                    nftTable.innerHTML += `<tr><td>${tokenId}</td><td>${mass}</td><td><a href="https://www.shibariumscan.io/token/${contractAddress}/instance/${tokenId}" target="_blank">View</a></td></tr>`;
-                    userNfts.push({tokenId: tokenId, mass: mass});
-                }
-                userNfts.forEach(nft => {
-                    nftSelect1.innerHTML += `<option value="${nft.tokenId}">${nft.tokenId} (Mass: ${nft.mass})</option>`;
-                    nftSelect2.innerHTML += `<option value="${nft.tokenId}">${nft.tokenId} (Mass: ${nft.mass})</option>`;
-                });
-            } catch (error) {
-                console.error('NFT update failed:', error);
-                nftTable.innerHTML = '<tr><td colspan="3">Error loading NFTs</td></tr>';
-            }
-        }
-
-        function setupEventListeners() {
-            contract.events.Transfer({filter: {to: accounts[0]}})
-                .on('data', () => {
-                    showModal('You received a new Serge NFT!');
-                    updateUI();
-                })
-                .on('error', console.error);
-            contract.events.MassUpdate()
-                .on('data', () => {
-                    showModal('NFTs merged successfully!');
-                    updateUI();
-                })
-                .on('error', console.error);
-            contract.events.NewNFTMinted({filter: {to: accounts[0]}})
-                .on('data', (event) => {
-                    showModal(`New NFT minted with ID ${event.returnValues.tokenId} and Mass ${event.returnValues.mass}!`);
-                    updateUI();
-                })
-                .on('error', console.error);
         }
 
         async function mintNFT() {
-            if (!web3 || !contract || !accounts) {
-                showModal('Please connect your wallet!');
+            if (!contract || !accounts) {
+                document.getElementById('mintStatus').innerText = "Connect wallet first!";
                 return;
             }
-            const mintButton = document.getElementById('mintButton');
+            const mintStatus = document.getElementById('mintStatus');
             try {
-                mintButton.classList.add('loading');
-                await contract.methods.mint().send({from: accounts[0], gas: 300000});
+                mintStatus.innerText = "Minting...";
+                await contract.methods.mint().send({ from: accounts[0], gas: 300000 });
+                mintStatus.innerText = "NFT minted successfully!";
+                updateStats();
             } catch (error) {
-                showModal(`Mint failed: ${error.message}`);
-            } finally {
-                mintButton.classList.remove('loading');
+                mintStatus.innerText = "Failed: " + error.message;
             }
+        }
+
+        async function loadMyNFTs() {
+            if (!contract || !accounts) return;
+            const nftList = document.getElementById('nftList');
+            const nftSelect1 = document.getElementById('nftSelect1');
+            const nftSelect2 = document.getElementById('nftSelect2');
+            nftList.innerHTML = '';
+            nftSelect1.innerHTML = '<option value="-1">Select NFT 1</option>';
+            nftSelect2.innerHTML = '<option value="-1">Select NFT 2</option>';
+            try {
+                const tokenIds = await contract.methods.tokensOfOwner(accounts[0]).call();
+                if (!tokenIds.length) {
+                    nftList.innerHTML = '<div class="status">No NFTs owned yet.</div>';
+                    return;
+                }
+                let html = '';
+                for (let id of tokenIds) {
+                    const mass = await contract.methods.massOf(id).call();
+                    html += `
+                        <div class="nft-item">
+                            <div class="nft-id">NFT #${id}</div>
+                            <div class="mass">Mass: ${mass}</div>
+                            <div class="action-buttons">
+                                <button onclick="viewNFT(${id})">View</button>
+                            </div>
+                        </div>
+                    `;
+                    nftSelect1.innerHTML += `<option value="${id}">${id} (Mass: ${mass})</option>`;
+                    nftSelect2.innerHTML += `<option value="${id}">${id} (Mass: ${mass})</option>`;
+                }
+                nftList.innerHTML = html;
+            } catch (error) {
+                nftList.innerHTML = '<div class="status">Failed to load NFTs: ' + error.message + '</div>';
+            }
+            updateMergeButton();
+        }
+
+        function viewNFT(tokenId) {
+            window.open(`https://www.shibariumscan.io/token/${contractAddress}/instance/${tokenId}`, '_blank');
         }
 
         function updateMergeButton() {
@@ -323,33 +460,67 @@
         }
 
         async function mergeNFTs() {
+            if (!contract || !accounts) {
+                document.getElementById('mergeStatus').innerText = "Connect wallet first!";
+                return;
+            }
             const nftSelect1 = document.getElementById('nftSelect1');
             const nftSelect2 = document.getElementById('nftSelect2');
-            const mergeButton = document.getElementById('mergeButton');
+            const mergeStatus = document.getElementById('mergeStatus');
             if (nftSelect1.value === "-1" || nftSelect2.value === "-1" || nftSelect1.value === nftSelect2.value) {
-                showModal('Please select two different NFTs!');
+                mergeStatus.innerText = "Select two different NFTs!";
                 return;
             }
             try {
-                mergeButton.classList.add('loading');
-                await contract.methods.merge(nftSelect1.value, nftSelect2.value).send({from: accounts[0], gas: 500000});
+                mergeStatus.innerText = "Merging...";
+                await contract.methods.merge(nftSelect1.value, nftSelect2.value).send({ from: accounts[0], gas: 500000 });
+                mergeStatus.innerText = "NFTs merged successfully!";
+                loadMyNFTs();
+                updateStats();
             } catch (error) {
-                showModal(`Merge failed: ${error.message}`);
-            } finally {
-                mergeButton.classList.remove('loading');
+                mergeStatus.innerText = "Failed: " + error.message;
             }
         }
 
-        document.getElementById('connectButton').addEventListener('click', connectWallet);
-        document.getElementById('mintButton').addEventListener('click', mintNFT);
+        async function refreshContent() {
+            const refreshButton = document.getElementById('refreshButton');
+            refreshButton.disabled = true;
+            try {
+                if (currentPage === 'mint') updateStats();
+                else if (currentPage === 'myNFTs') loadMyNFTs();
+            } finally {
+                refreshButton.disabled = false;
+            }
+        }
+
+        function setupEventListeners() {
+            if (!contract) return;
+            contract.events.NewNFTMinted({ filter: { to: accounts[0] } }, () => {
+                document.getElementById('mintStatus').innerText = "New NFT minted!";
+                updateStats();
+                if (currentPage === 'myNFTs') loadMyNFTs();
+            });
+            contract.events.MassUpdate({}, () => {
+                document.getElementById('mergeStatus').innerText = "NFTs merged!";
+                updateStats();
+                if (currentPage === 'myNFTs') loadMyNFTs();
+            });
+            contract.events.Transfer({ filter: { to: accounts[0] } }, () => {
+                if (currentPage === 'myNFTs') loadMyNFTs();
+            });
+        }
+
+        document.getElementById('connectWalletButton').addEventListener('click', connectWallet);
+        document.getElementById('mintButton').addEventListener('click', () => switchPage('mint'));
+        document.getElementById('myNFTsButton').addEventListener('click', () => switchPage('myNFTs'));
 
         window.ethereum?.on('chainChanged', (chainId) => {
             if (parseInt(chainId, 16) !== 109) {
-                showModal('Please switch to Shibarium!');
+                document.getElementById('networkStatus').innerText = "Wrong network. Reconnect to Shibarium.";
                 web3 = null;
                 contract = null;
                 accounts = null;
-                document.getElementById('walletAddress').innerText = 'Not connected';
+                document.getElementById('connectWalletButton').textContent = 'Connect Wallet';
             } else {
                 connectWallet();
             }
@@ -359,11 +530,11 @@
             if (newAccounts.length) {
                 connectWallet();
             } else {
-                showModal('Wallet disconnected!');
+                document.getElementById('networkStatus').innerText = "Wallet disconnected. Reconnect.";
                 web3 = null;
                 contract = null;
                 accounts = null;
-                document.getElementById('walletAddress').innerText = 'Not connected';
+                document.getElementById('connectWalletButton').textContent = 'Connect Wallet';
             }
         });
     </script>
