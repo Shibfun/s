@@ -319,27 +319,46 @@
             const nftList = document.getElementById('nftList');
             nftList.innerHTML = '';
             try {
-                const tokenIds = await nftContract.methods.tokensOfOwner(accounts[0]).call();
                 const stakedTokenId = await contract.methods.stakedNFT(accounts[0]).call();
+                let tokenIds = await nftContract.methods.tokensOfOwner(accounts[0]).call();
                 if (!tokenIds.length && stakedTokenId == 0) {
                     nftList.innerHTML = '<div class="status">No NFTs owned yet.</div>';
                     return;
                 }
-                let html = '';
+
+                let nftData = [];
                 for (let id of tokenIds) {
                     const mass = await nftContract.methods.massOf(id).call();
-                    const isStaked = id == stakedTokenId;
-                    html += `
-                        <div class="nft-item">
-                            <div class="nft-id">NFT #${id}</div>
-                            <div class="mass">Mass: ${mass}</div>
-                            <div class="action-buttons">
-                                <button onclick="viewNFT(${id})">View</button>
-                                ${isStaked ? `<button onclick="unstakeNFT()">Unstake</button>` : `<button onclick="stakeNFT(${id})" ${stakedTokenId != 0 ? 'disabled' : ''}>Stake</button>`}
-                            </div>
-                        </div>
-                    `;
+                    nftData.push({ id: parseInt(id), mass: parseInt(mass) });
                 }
+
+                if (stakedTokenId != 0 && !tokenIds.includes(stakedTokenId.toString())) {
+                    const mass = await nftContract.methods.massOf(stakedTokenId).call();
+                    nftData.push({ id: parseInt(stakedTokenId), mass: parseInt(mass) });
+                }
+
+                if (!nftData.length) {
+                    nftList.innerHTML = '<div class="status">No NFTs available.</div>';
+                    return;
+                }
+
+                nftData.sort((a, b) => {
+                    if (b.mass === a.mass) return a.id - b.id;
+                    return b.mass - a.mass;
+                });
+
+                const topNFT = nftData[0];
+                const isStaked = topNFT.id == stakedTokenId;
+                let html = `
+                    <div class="nft-item">
+                        <div class="nft-id">NFT #${topNFT.id}</div>
+                        <div class="mass">Mass: ${topNFT.mass}</div>
+                        <div class="action-buttons">
+                            <button onclick="viewNFT(${topNFT.id})">View</button>
+                            ${isStaked ? `<button onclick="unstakeNFT()">Unstake</button>` : `<button onclick="stakeNFT(${topNFT.id})" ${stakedTokenId != 0 ? 'disabled' : ''}>Stake</button>`}
+                        </div>
+                    </div>
+                `;
                 nftList.innerHTML = html;
             } catch (error) {
                 nftList.innerHTML = '<div class="status">Failed to load NFTs: ' + error.message + '</div>';
