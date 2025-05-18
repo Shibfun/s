@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serge Token - Stake & Manage</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #1e1e2f;
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: #2c2f48;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            border-radius: 20px;
+            overflow: hidden;
+            padding: 15px;
+        }
+        .header {
+            background: linear-gradient(90deg, #ff6f61 0%, #ff9f1c 100%);
+            color: #fff;
+            padding: 12px;
+            font-size: 1.5em;
+            font-weight: 600;
+            text-align: center;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+        .status-bar {
+            background: #ff9100;
+            color: #fff;
+            padding: 10px;
+            font-size: 1em;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .content-header .info {
+            font-size: 0.9em;
+            color: #a5b4fc;
+        }
+        .header-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .refresh-btn {
+            padding: 8px 16px;
+            background: #ff9100;
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .refresh-btn:hover {
+            background: #e68a00;
+            transform: translateY(-2px);
+        }
+        .info-section {
+            padding: 10px;
+            background: #373b5c;
+            border-radius: 10px;
+            font-size: 0.9em;
+            color: #a5b4fc;
+            margin-bottom: 15px;
+        }
+        .info-section p {
+            margin: 5px 0;
+        }
+        .nft-item {
+            padding: 10px;
+            background: #2c2f48;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nft-item:hover {
+            background: #373b5c;
+        }
+        .nft-item .nft-id {
+            font-weight: 600;
+            font-size: 1em;
+        }
+        .nft-item .mass {
+            font-size: 0.8em;
+            color: #a5b4fc;
+        }
+        .nft-item .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .nft-item button {
+            padding: 5px 10px;
+            background: #ff9100;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .nft-item button:hover {
+            background: #e68a00;
+        }
+        .nft-item button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #ff9100;
+            text-align: center;
+        }
+        @media (max-width: 400px) {
+            .header-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+            .refresh-btn {
+                width: 100%;
+            }
+            .nft-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">Serge Token</div>
+        <div class="status-bar" id="walletStatus">Click to connect...</div>
+        <div class="content">
+            <div class="content-header">
+                <div class="info" id="statsInfo"></div>
+                <div class="header-buttons">
+                    <button class="refresh-btn" id="refreshButton" onclick="refreshContent()">Refresh</button>
+                </div>
+            </div>
+            <div class="info-section" id="statsSection">
+                <p>Total Supply: <span id="totalSupply">0</span></p>
+                <p>Your Balance: <span id="userBalance">0</span> SERGE</p>
+                <p>Staked NFT: <span id="stakedNFT">None</span></p>
+            </div>
+            <div class="info-section">
+                <p>Stake a Serge NFT to mint SERGE tokens (10M per Mass).</p>
+                <p>Unstake to burn tokens and retrieve your NFT.</p>
+            </div>
+            <div id="nftList"></div>
+            <div class="status" id="status"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
+    <script>
+        let web3, accounts, contract, nftContract;
+        const tokenContractAddress = "0x7E9F3547C44df84766146DD24df798B63CA3142A";
+        const nftContractAddress = "0x9FcEa3627746aEA84c8Eba612E1fD25aC27d605A";
+        const tokenContractABI = [
+            {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"mass","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"NFTStaked","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"user","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"},{"indexed":false,"internalType":"uint256","name":"amount","type":"uint256"}],"name":"NFTUnstaked","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":true,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},
+            {"inputs":[],"name":"MAX_SUPPLY","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"TOKENS_PER_MASS","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"account","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"stakeNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"unstakeNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"spender","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"stakedNFT","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"}
+        ];
+        const nftContractABI = [
+            {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"approved","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Approval","type":"event"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"operator","type":"address"},{"indexed":false,"internalType":"bool","name":"approved","type":"bool"}],"name":"ApprovalForAll","type":"event"},
+            {"inputs":[{"internalType":"address","name":"owner_","type":"address"}],"name":"tokensOfOwner","outputs":[{"internalType":"uint256[]","name":"","type":"uint256[]"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"massOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner_","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"_data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"}
+        ];
+        const shibarium = {
+            chainId: 109,
+            chainName: 'Shibarium',
+            nativeCurrency: { name: 'BONE', symbol: 'BONE', decimals: 18 },
+            rpcUrls: ['https://rpc.shibrpc.com'],
+            blockExplorerUrls: ['https://shibariumscan.io']
+        };
+
+        async function connectWallet() {
+            const walletStatus = document.getElementById('walletStatus');
+            try {
+                if (!window.ethereum) throw new Error("No wallet detected");
+                walletStatus.innerText = "Connecting...";
+                web3 = new Web3(window.ethereum);
+                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                if (!accounts.length) throw new Error("Unlock wallet");
+                const chainId = await web3.eth.getChainId();
+                if (chainId !== 109) {
+                    try {
+                        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: "0x6d" }] });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [shibarium] });
+                        else throw switchError;
+                    }
+                }
+                walletStatus.innerText = `Connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+                contract = new web3.eth.Contract(tokenContractABI, tokenContractAddress);
+                nftContract = new web3.eth.Contract(nftContractABI, nftContractAddress);
+                updateStats();
+                loadMyNFTs();
+                setupEventListeners();
+            } catch (error) {
+                walletStatus.innerText = "Failed: " + error.message;
+            }
+        }
+
+        async function updateStats() {
+            if (!contract || !nftContract) return;
+            try {
+                const totalSupply = await contract.methods.totalSupply().call();
+                document.getElementById('totalSupply').innerText = web3.utils.fromWei(totalSupply, 'ether');
+                const balance = await contract.methods.balanceOf(accounts[0]).call();
+                document.getElementById('userBalance').innerText = web3.utils.fromWei(balance, 'ether');
+                const stakedTokenId = await contract.methods.stakedNFT(accounts[0]).call();
+                document.getElementById('stakedNFT').innerText = stakedTokenId == 0 ? "None" : `#${stakedTokenId}`;
+                document.getElementById('statsInfo').innerText = `Balance: ${web3.utils.fromWei(await web3.eth.getBalance(accounts[0]), 'ether').slice(0, 6)} BONE`;
+            } catch (error) {
+                document.getElementById('status').innerText = "Failed to load stats: " + error.message;
+            }
+        }
+
+        async function stakeNFT(tokenId) {
+            if (!contract || !nftContract || !accounts) {
+                document.getElementById('status').innerText = "Connect wallet first!";
+                return;
+            }
+            const status = document.getElementById('status');
+            try {
+                status.innerText = "Checking approval...";
+                const isApproved = await nftContract.methods.isApprovedForAll(accounts[0], tokenContractAddress).call();
+                if (!isApproved) {
+                    status.innerText = "Approving NFT...";
+                    await nftContract.methods.setApprovalForAll(tokenContractAddress, true).send({ from: accounts[0], gas: 200000 });
+                }
+                status.innerText = "Staking NFT...";
+                await contract.methods.stakeNFT(tokenId).send({ from: accounts[0], gas: 500000 });
+                status.innerText = "NFT staked successfully!";
+                updateStats();
+                loadMyNFTs();
+            } catch (error) {
+                status.innerText = "Failed: " + error.message;
+            }
+        }
+
+        async function unstakeNFT() {
+            if (!contract || !accounts) {
+                document.getElementById('status').innerText = "Connect wallet first!";
+                return;
+            }
+            const status = document.getElementById('status');
+            try {
+                status.innerText = "Unstaking NFT...";
+                await contract.methods.unstakeNFT().send({ from: accounts[0], gas: 500000 });
+                status.innerText = "NFT unstaked successfully!";
+                updateStats();
+                loadMyNFTs();
+            } catch (error) {
+                status.innerText = "Failed: " + error.message;
+            }
+        }
+
+        async function loadMyNFTs() {
+            if (!contract || !nftContract || !accounts) return;
+            const nftList = document.getElementById('nftList');
+            nftList.innerHTML = '';
+            try {
+                const tokenIds = await nftContract.methods.tokensOfOwner(accounts[0]).call();
+                const stakedTokenId = await contract.methods.stakedNFT(accounts[0]).call();
+                if (!tokenIds.length && stakedTokenId == 0) {
+                    nftList.innerHTML = '<div class="status">No NFTs owned yet.</div>';
+                    return;
+                }
+                let html = '';
+                for (let id of tokenIds) {
+                    const mass = await nftContract.methods.massOf(id).call();
+                    const isStaked = id == stakedTokenId;
+                    html += `
+                        <div class="nft-item">
+                            <div class="nft-id">NFT #${id}</div>
+                            <div class="mass">Mass: ${mass}</div>
+                            <div class="action-buttons">
+                                <button onclick="viewNFT(${id})">View</button>
+                                ${isStaked ? `<button onclick="unstakeNFT()">Unstake</button>` : `<button onclick="stakeNFT(${id})" ${stakedTokenId != 0 ? 'disabled' : ''}>Stake</button>`}
+                            </div>
+                        </div>
+                    `;
+                }
+                nftList.innerHTML = html;
+            } catch (error) {
+                nftList.innerHTML = '<div class="status">Failed to load NFTs: ' + error.message + '</div>';
+            }
+        }
+
+        function viewNFT(tokenId) {
+            window.open(`https://www.shibariumscan.io/token/${nftContractAddress}/instance/${tokenId}`, '_blank');
+        }
+
+        async function refreshContent() {
+            const refreshButton = document.getElementById('refreshButton');
+            refreshButton.disabled = true;
+            try {
+                updateStats();
+                loadMyNFTs();
+            } catch (error) {
+                document.getElementById('status').innerText = "Failed to refresh: " + error.message;
+            } finally {
+                refreshButton.disabled = false;
+            }
+        }
+
+        function setupEventListeners() {
+            if (!contract) return;
+            contract.events.NFTStaked({ filter: { user: accounts[0] } }, () => {
+                document.getElementById('status').innerText = "NFT staked!";
+                updateStats();
+                loadMyNFTs();
+            });
+            contract.events.NFTUnstaked({ filter: { user: accounts[0] } }, () => {
+                document.getElementById('status').innerText = "NFT unstaked!";
+                updateStats();
+                loadMyNFTs();
+            });
+            contract.events.Transfer({ filter: { to: accounts[0] } }, () => {
+                loadMyNFTs();
+            });
+        }
+
+        document.getElementById('walletStatus').addEventListener('click', connectWallet);
+
+        window.ethereum?.on('chainChanged', (chainId) => {
+            if (parseInt(chainId, 16) !== 109) {
+                document.getElementById('walletStatus').innerText = "Wrong network. Reconnect to Shibarium.";
+                web3 = null;
+                contract = null;
+                nftContract = null;
+                accounts = null;
+            } else {
+                connectWallet();
+            }
+        });
+
+        window.ethereum?.on('accountsChanged', (newAccounts) => {
+            if (newAccounts.length) {
+                connectWallet();
+            } else {
+                web3 = null;
+                contract = null;
+                nftContract = null;
+                accounts = null;
+                document.getElementById('walletStatus').innerText = "Click to connect...";
+            }
+        });
+    </script>
+</body>
+</html>
